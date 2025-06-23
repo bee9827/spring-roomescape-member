@@ -55,6 +55,7 @@ class ReservationApiControllerTest {
             .id(1L)
             .name("이름")
             .date(LocalDate.of(2025, 12, 31))
+            .theme(theme)
             .reservationTime(reservationTime)
             .build();
     ReservationRequestDto reservationRequestDto = new ReservationRequestDto("이름", LocalDate.of(2025, 12, 31), 1L, 1L);
@@ -72,19 +73,23 @@ class ReservationApiControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(reservationApiController).build();
     }
 
-    @Test
-    @DisplayName("204: 예약 삭제 성공")
-    void deleteReservation() throws Exception {
-        doNothing().when(reservationService).deleteById(any());
+    @Nested
+    @DisplayName("[DELETE] 예약 삭제")
+    class DeleteReservation {
+        @Test
+        @DisplayName("204: 예약 삭제 성공")
+        void deleteReservation() throws Exception {
+            doNothing().when(reservationService).deleteById(any());
 
-        mockMvc.perform(MockMvcRequestBuilders.delete(BASE_URL + "/1"))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isNoContent());
+            mockMvc.perform(MockMvcRequestBuilders.delete(BASE_URL + "/1"))
+                    .andDo(MockMvcResultHandlers.print())
+                    .andExpect(status().isNoContent());
+        }
     }
 
     @Nested
     @DisplayName("[GET] 예약 조회")
-    class getReservation {
+    class GetReservation {
         @Test
         @DisplayName("200: 조회 성공")
         void success() throws Exception {
@@ -97,7 +102,7 @@ class ReservationApiControllerTest {
                     .andExpect(jsonPath("$.id").value(reservationResponseDto.id()))
                     .andExpect(jsonPath("$.name").value(reservationResponseDto.name()))
                     .andExpect(jsonPath("$.date").value(reservationResponseDto.date().format(DateTimeFormatter.ofPattern(ReservationResponseDto.DATE_PATTERN))))
-                    .andExpect(jsonPath("$.themName").value(reservationResponseDto.themeName()))
+                    .andExpect(jsonPath("$.themeName").value(reservationResponseDto.themeName()))
                     .andExpect(jsonPath("$.time").value(reservationResponseDto.time().format(DateTimeFormatter.ofPattern(ReservationResponseDto.TIME_PATTERN))));
 
         }

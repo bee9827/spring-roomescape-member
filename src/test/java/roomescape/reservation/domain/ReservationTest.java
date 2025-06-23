@@ -1,5 +1,7 @@
 package roomescape.reservation.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import roomescape.common.exception.RestApiException;
@@ -11,7 +13,8 @@ import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-
+@AllArgsConstructor
+@RequiredArgsConstructor
 class ReservationTest {
 
     @Test
@@ -25,9 +28,7 @@ class ReservationTest {
                         .date(LocalDate.now())
                         .reservationTime(reservationTime)
                         .build())
-
                 .isInstanceOf(RestApiException.class)
                 .hasMessage(ReservationErrorStatus.PAST_TIME.getMessage());
     }
-
 }

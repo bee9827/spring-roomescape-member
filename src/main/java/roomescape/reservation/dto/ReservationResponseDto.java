@@ -2,11 +2,13 @@ package roomescape.reservation.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import roomescape.reservation.domain.Reservation;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@Builder
 public record ReservationResponseDto(
         Long id,
         String name,

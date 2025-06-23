@@ -1,4 +1,4 @@
-package roomescape.common;
+package roomescape;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;

@@ -1,6 +1,5 @@
 package roomescape.reservation.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -83,7 +82,7 @@ class ReservationServiceTest {
         @DisplayName("save: 저장에 성공한다.")
         @Test
         void save() {
-            when(reservationRepository.existsByDateAndAndReservationTimeId(any(), any())).thenReturn(false); //중복
+            when(reservationRepository.existsByDateAndReservationTimeId(any(), any())).thenReturn(false); //중복
             when(themeRepository.findById(any())).thenReturn(Optional.ofNullable(theme));
             when(reservationTimeRepository.findById(any())).thenReturn(Optional.ofNullable(reservationTime));
             when(reservationRepository.save(any())).thenReturn(reservation);
@@ -95,7 +94,7 @@ class ReservationServiceTest {
         @Test
         @DisplayName("예외: 저장된 Time이 없다면 예외를 던진다.")
         void reservationTimeNotFound() {
-            when(reservationRepository.existsByDateAndAndReservationTimeId(any(), any())).thenReturn(false);
+            when(reservationRepository.existsByDateAndReservationTimeId(any(), any())).thenReturn(false);
 
             assertThatThrownBy(() -> reservationService.save(reservationRequestDto))
                     .isInstanceOf(RestApiException.class)
@@ -105,7 +104,7 @@ class ReservationServiceTest {
         @Test
         @DisplayName("예외: 저장된 Theme이 없다면 예외를 던진다.")
         void themeNotFound() {
-            when(reservationRepository.existsByDateAndAndReservationTimeId(any(), any())).thenReturn(false); //중복
+            when(reservationRepository.existsByDateAndReservationTimeId(any(), any())).thenReturn(false); //중복
             when(reservationTimeRepository.findById(any())).thenReturn(Optional.ofNullable(reservationTime));
             when(themeRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -117,7 +116,7 @@ class ReservationServiceTest {
         @Test
         @DisplayName("예외: 중복된 날짜와 시간이 저장 되면 예외를 던진다.")
         public void duplicateDateException() {
-            when(reservationRepository.existsByDateAndAndReservationTimeId(any(), any())).thenReturn(true); //중복
+            when(reservationRepository.existsByDateAndReservationTimeId(any(), any())).thenReturn(true); //중복
 
             assertThatThrownBy(() -> reservationService.save(reservationRequestDto))
                     .isInstanceOf(RestApiException.class)

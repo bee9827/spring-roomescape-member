@@ -63,21 +63,10 @@ public class ReservationService {
         reservationRepository.deleteById(id);
     }
 
-    private void validateTimeExists(Long timeId) {
-        if (!reservationTimeRepository.existsById(timeId)) {
-            throw new RestApiException(ReservationErrorStatus.TIME_NOT_FOUND);
-        }
-    }
-
-    private void validateThemeExists(Long themeId) {
-        if (!themeRepository.existsById(themeId)) {
-            throw new RestApiException(ReservationErrorStatus.THEME_NOT_FOUND);
-        }
-    }
 
     private void validateDuplicateDateAndTime(ReservationRequestDto reservationRequestDto) {
         LocalDate date = reservationRequestDto.date();
-        if (reservationRepository.existsByDateAndAndReservationTimeId(date, reservationRequestDto.reservationTimeId())) {
+        if (reservationRepository.existsByDateAndReservationTimeId(date, reservationRequestDto.reservationTimeId())) {
             throw new RestApiException(ReservationErrorStatus.DUPLICATE_DATE_TIME);
         }
     }

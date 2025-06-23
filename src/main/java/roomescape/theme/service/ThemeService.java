@@ -47,7 +47,7 @@ public class ThemeService {
     }
 
     private void validateReservationExists(Long id) {
-        if (reservationRepository.existsReservationByThemeId(id)) {
+        if (reservationRepository.existsByThemeId(id)) {
             throw new RestApiException(ThemeErrorStatus.RESERVATION_EXIST);
         }
     }

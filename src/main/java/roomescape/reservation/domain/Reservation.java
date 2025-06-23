@@ -1,6 +1,7 @@
 package roomescape.reservation.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,8 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY) //쓰레드 세이프 하지 않다.
     private Long id;
     private String name;
+
+    @FutureOrPresent
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
