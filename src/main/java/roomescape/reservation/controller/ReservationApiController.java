@@ -2,9 +2,7 @@ package roomescape.reservation.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import roomescape.reservation.domain.Reservation;
 import roomescape.reservation.dto.ReservationRequestDto;
 import roomescape.reservation.dto.ReservationResponseDto;
 import roomescape.reservation.service.ReservationService;
@@ -59,7 +57,6 @@ public class ReservationApiController {
     ) {
         ReservationResponseDto reservationResponse = new ReservationResponseDto(reservationService.save(reservationRequestDto));
         URI uri = URI.create(BASE_URL + "/" + reservationResponse.id());
-
 
         return ResponseEntity.created(uri).body(reservationResponse);
     }

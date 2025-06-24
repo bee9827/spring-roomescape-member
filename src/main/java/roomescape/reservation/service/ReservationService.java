@@ -28,8 +28,6 @@ public class ReservationService {
     }
 
     public Reservation save(ReservationRequestDto reservationRequestDto) {
-        validateDuplicateDateAndTime(reservationRequestDto);
-
         ReservationTime time = reservationTimeRepository.findById(reservationRequestDto.reservationTimeId())
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.TIME_NOT_FOUND));
         Theme theme = themeRepository.findById(reservationRequestDto.themeId())
@@ -63,11 +61,4 @@ public class ReservationService {
         reservationRepository.deleteById(id);
     }
 
-
-    private void validateDuplicateDateAndTime(ReservationRequestDto reservationRequestDto) {
-        LocalDate date = reservationRequestDto.date();
-        if (reservationRepository.existsByDateAndReservationTimeId(date, reservationRequestDto.reservationTimeId())) {
-            throw new RestApiException(ReservationErrorStatus.DUPLICATE_DATE_TIME);
-        }
-    }
 }

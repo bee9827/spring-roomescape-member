@@ -17,14 +17,15 @@ import java.time.LocalTime;
 import static lombok.AccessLevel.PROTECTED;
 
 
-@Entity(name = "reservation")
+@Entity(name = "Reservation")
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "RESERVATION_DATE",
                         columnNames = {
                                 "date",
-                                "reservation_time_id"
+                                "reservation_time_id",
+                                "theme_id"
                         })
         }
 )

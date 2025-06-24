@@ -9,6 +9,7 @@ import roomescape.reservationTime.dto.ReservationTimeResponse;
 import roomescape.reservationTime.service.ReservationTimeService;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -50,5 +51,16 @@ public class ReservationTimeController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{themeId}")
+    public ResponseEntity<List<ReservationTimeResponse>> findAllByThemeId(
+            @PathVariable("themeId") Long themeId,
+            @RequestParam("date") LocalDate date
+    ) {
+        List<ReservationTimeResponse> timeResponses = reservationTimeService.findAvailable(themeId, date)
+                .stream()
+                .map(ReservationTimeResponse::from)
+                .toList();
+        return ResponseEntity.ok(timeResponses);
+    }
 
 }

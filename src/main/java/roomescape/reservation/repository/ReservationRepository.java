@@ -15,7 +15,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     boolean existsByDateAndReservationTimeId(LocalDate date, Long reservationTimeId);
 
     @Query("""
-            SELECT r FROM reservation r
+            SELECT r FROM Reservation r
             JOIN FETCH r.reservationTime
             JOIN FETCH r.theme
             """)
