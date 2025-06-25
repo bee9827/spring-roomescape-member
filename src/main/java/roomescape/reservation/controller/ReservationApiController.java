@@ -1,63 +1,39 @@
 package roomescape.reservation.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import roomescape.reservation.dto.ReservationRequestDto;
-import roomescape.reservation.dto.ReservationResponseDto;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import roomescape.common.config.AuthMember;
+import roomescape.member.domain.Member;
 import roomescape.reservation.service.ReservationService;
+import roomescape.reservation.service.dto.ReservationOutput;
+import roomescape.reservation.service.dto.ReservationRequest;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping(ReservationApiController.BASE_URL)
+@RequiredArgsConstructor
 public class ReservationApiController {
     public static final String BASE_URL = "/reservations";
-
     private final ReservationService reservationService;
 
-    public ReservationApiController(ReservationService reservationService) {
-        this.reservationService = reservationService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ReservationResponseDto>> getReservations() {
-        List<ReservationResponseDto> reservations = reservationService.findAll()
-                .stream()
-                .map(ReservationResponseDto::new)
-                .toList();
-
-        return ResponseEntity.ok(reservations);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ReservationResponseDto> getReservation(
-            @PathVariable
-            Long id
-    ) {
-        ReservationResponseDto reservation = new ReservationResponseDto(reservationService.findById(id));
-        return ResponseEntity.ok(reservation);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(
-            @PathVariable
-            Long id
-    ) {
-        reservationService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping
-    public ResponseEntity<ReservationResponseDto> createReservation(
+    public ResponseEntity<ReservationOutput> create(
             @RequestBody
             @Valid
-            ReservationRequestDto reservationRequestDto
-    ) {
-        ReservationResponseDto reservationResponse = new ReservationResponseDto(reservationService.save(reservationRequestDto));
-        URI uri = URI.create(BASE_URL + "/" + reservationResponse.id());
+            ReservationRequest requestDto,
 
-        return ResponseEntity.created(uri).body(reservationResponse);
+            @AuthMember
+            Member member
+    ) {
+        ReservationOutput reservationOutput = reservationService.save(requestDto.toInput(member.getId()));
+        URI uri = URI.create("/reservations/" + member.getId());
+
+        return ResponseEntity.created(uri).body(reservationOutput);
     }
 }

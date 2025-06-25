@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
+import roomescape.member.domain.Member;
 import roomescape.reservationTime.domain.ReservationTime;
 import roomescape.theme.domain.Theme;
 
@@ -35,7 +36,9 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //쓰레드 세이프 하지 않다.
     private Long id;
-    private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
 
     @FutureOrPresent
     private LocalDate date;
@@ -48,10 +51,9 @@ public class Reservation {
     private Theme theme;
 
     @Builder
-    public Reservation(Long id, String name, LocalDate date, ReservationTime reservationTime, Theme theme) {
+    public Reservation(Member member, LocalDate date, ReservationTime reservationTime, Theme theme) {
         validateNonPastDateAndTime(date, reservationTime.getStartAt());
-        this.id = id;
-        this.name = name;
+        this.member = member;
         this.date = date;
         this.reservationTime = reservationTime;
         this.theme = theme;

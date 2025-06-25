@@ -1,10 +1,11 @@
-package roomescape.reservation.dto;
+package roomescape.reservation.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
+import roomescape.member.domain.Member;
 import roomescape.reservation.domain.Reservation;
 import roomescape.reservationTime.domain.ReservationTime;
 import roomescape.theme.domain.Theme;
@@ -12,23 +13,24 @@ import roomescape.theme.domain.Theme;
 import java.time.LocalDate;
 
 @Builder
-public record ReservationRequestDto(
-        @NotBlank(message = "이름은 공백일 수 없습니다.")
-        String name,
+public record ReservationInput(
+        @NotBlank(message = "멤버 Id는 공백일 수 없습니다.")
+        Long memberId,
 
         @NotNull(message = "날짜는 공백일 수 없습니다.")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         LocalDate date,
 
-        @NotNull(message = "테마는 공백일 수 없습니다.")
+        @NotNull(message = "테마 Id는 공백일 수 없습니다.")
         Long themeId,
 
-        @NotNull(message = "시간은 공백일 수 없습니다.")
+        @NotNull(message = "시간 Id는 공백일 수 없습니다.")
         @JsonProperty("timeId")
         Long reservationTimeId) {
-    public Reservation toEntity(Theme theme, ReservationTime reservationTime) {
+
+    public Reservation toEntity(Member member, Theme theme, ReservationTime reservationTime) {
         return Reservation.builder()
-                .name(name)
+                .member(member)
                 .date(date)
                 .theme(theme)
                 .reservationTime(reservationTime)

@@ -3,15 +3,13 @@ package roomescape.common.config.auth.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import roomescape.common.config.auth.JwtProvider;
-import roomescape.common.config.auth.controller.dto.LoginRequest;
-import roomescape.common.config.auth.controller.dto.LoginResponse;
-import roomescape.member.controller.dto.MemberResponseDto;
+import roomescape.common.config.auth.service.dto.LoginRequest;
 import roomescape.member.domain.Member;
 import roomescape.member.service.MemberService;
 
 @Service
 @RequiredArgsConstructor
-public class MemberAuthService {
+public class AuthService {
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
 

@@ -9,27 +9,31 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import roomescape.common.config.auth.JwtProvider;
-import roomescape.common.config.auth.service.MemberAuthService;
+import roomescape.common.config.auth.service.AuthService;
 import roomescape.common.util.CookieUtil;
 import roomescape.member.domain.Member;
 
 @Component
 @RequiredArgsConstructor
-public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
-    private final MemberAuthService memberAuthService;
+public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private final AuthService authService;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(LoginMember.class) && parameter.getParameterType().equals(Member.class);
+        return parameter.hasParameterAnnotation(AuthMember.class) && parameter.getParameterType().equals(Member.class);
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Member resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 
-        return memberAuthService.findMemberByToken(
-                CookieUtil.getValueByName(
-                        JwtProvider.NAME,
-                        request.getCookies()));
+        return authService.findMemberByToken(getTokenFromRequest(request));
+    }
+
+    private String getTokenFromRequest(HttpServletRequest request) {
+        return CookieUtil.getTokenByName(
+                JwtProvider.NAME,
+                request.getCookies());
     }
 }

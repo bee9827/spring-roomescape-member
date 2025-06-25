@@ -21,7 +21,7 @@ public class CookieUtil {
         return cookie;
     }
 
-    public static String getValueByName(String name, Cookie[] cookies) {
+    public static String getTokenByName(String name, Cookie[] cookies) {
         if (cookies == null) throw new RestApiException(AuthErrorStatus.NOT_FOUND_COOKIE);
 
         return Arrays.stream(cookies)

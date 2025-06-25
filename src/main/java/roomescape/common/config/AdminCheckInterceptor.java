@@ -7,16 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import roomescape.common.config.auth.JwtProvider;
-import roomescape.common.config.auth.service.MemberAuthService;
+import roomescape.common.config.auth.service.AuthService;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.util.CookieUtil;
 import roomescape.member.domain.Member;
-import roomescape.member.repository.MemberRepository;
 
 @Component
 @RequiredArgsConstructor
 public class AdminCheckInterceptor implements HandlerInterceptor {
-    private final MemberAuthService memberAuthService;
+    private final AuthService authService;
 
     @Override
     public boolean preHandle(
@@ -27,9 +26,9 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
 
         try {
             Cookie[] cookies = request.getCookies();
-            String token = CookieUtil.getValueByName(JwtProvider.NAME, cookies);
+            String token = CookieUtil.getTokenByName(JwtProvider.NAME, cookies);
 
-            Member member = memberAuthService.findMemberByToken(token);
+            Member member = authService.findMemberByToken(token);
             member.validateAdmin();
             return true;
         }catch (RestApiException e) {

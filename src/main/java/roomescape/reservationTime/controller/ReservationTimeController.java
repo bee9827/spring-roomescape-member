@@ -1,66 +1,30 @@
 package roomescape.reservationTime.controller;
 
-import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import roomescape.reservationTime.domain.ReservationTime;
-import roomescape.reservationTime.dto.ReservationTimeRequest;
-import roomescape.reservationTime.dto.ReservationTimeResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import roomescape.reservationTime.service.ReservationTimeService;
+import roomescape.reservationTime.service.dto.AvailableTimeOutput;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/times")
+@RequiredArgsConstructor
 public class ReservationTimeController {
     private final ReservationTimeService reservationTimeService;
 
-    public ReservationTimeController(ReservationTimeService reservationTimeService) {
-        this.reservationTimeService = reservationTimeService;
-    }
-
-    @PostMapping
-    public ResponseEntity<ReservationTimeResponse> create(
-            @RequestBody
-            @Valid
-            ReservationTimeRequest reservationTimeRequest) {
-        ReservationTime request = reservationTimeRequest.toEntity();
-        ReservationTime savedTime = reservationTimeService.save(request);
-        ReservationTimeResponse responseDto = ReservationTimeResponse.from(savedTime);
-        return ResponseEntity.created(URI.create("/times")).body(responseDto);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ReservationTimeResponse>> findAll() {
-        //잘못된 아이디 전달
-        List<ReservationTimeResponse> reservationTimeResponses = reservationTimeService.findAll()
-                .stream()
-                .map(ReservationTimeResponse::from)
-                .toList();
-
-        return ResponseEntity.ok(reservationTimeResponses);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        //잘못된 아이디 전달 했을 경우 예외 처리 필요.
-        reservationTimeService.deleteById(id);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{themeId}")
-    public ResponseEntity<List<ReservationTimeResponse>> findAllByThemeId(
-            @PathVariable("themeId") Long themeId,
-            @RequestParam("date") LocalDate date
+    @GetMapping("/available")
+    public ResponseEntity<List<AvailableTimeOutput>> available(
+            @RequestParam final Long themeId,
+            @RequestParam final LocalDate date
     ) {
-        List<ReservationTimeResponse> timeResponses = reservationTimeService.findAvailable(themeId, date)
-                .stream()
-                .map(ReservationTimeResponse::from)
-                .toList();
-        return ResponseEntity.ok(timeResponses);
-    }
+        List<AvailableTimeOutput> availableTimeOutputs = reservationTimeService.findAvailable(themeId, date);
 
+        return ResponseEntity.ok(availableTimeOutputs);
+    }
 }

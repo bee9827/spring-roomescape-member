@@ -27,6 +27,21 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
+
+        Member member = Member.builder()
+                .name("용성")
+                .email("ehfrhfo9494@naver.com")
+                .password("1007")
+                .build();
+
+        Member admin = Member.builder()
+                .name("admin")
+                .email("admin@naver.com")
+                .password("1007")
+                .role(Role.ADMIN)
+                .build();
+
         ReservationTime time = ReservationTime.builder()
                 .startAt(LocalTime.of(10, 0))
                 .build();
@@ -58,23 +73,10 @@ public class DataInitializer implements ApplicationRunner {
                 .build();
 
         Reservation reservation = Reservation.builder()
-                .name("이름")
+                .member(member)
                 .theme(theme)
                 .date(LocalDate.now().plusDays(1))
                 .reservationTime(time)
-                .build();
-
-        Member member = Member.builder()
-                .name("용성")
-                .email("ehfrhfo9494@naver.com")
-                .password("1007")
-                .build();
-
-        Member admin = Member.builder()
-                .name("admin")
-                .email("admin@naver.com")
-                .password("1007")
-                .role(Role.ADMIN)
                 .build();
 
         memberService.save(member);
