@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import roomescape.reservationTime.domain.ReservationTime;
-import roomescape.reservationTime.service.dto.ReservationTimeRequest;
-import roomescape.reservationTime.service.dto.ReservationTimeResponse;
+import roomescape.reservationTime.service.dto.command.ReservationTimeCreate;
+import roomescape.reservationTime.service.dto.result.ReservationTimeResponse;
 import roomescape.reservationTime.service.ReservationTimeService;
 
 import java.net.URI;
@@ -25,8 +25,8 @@ public class AdminReservationTimeController {
     public ResponseEntity<ReservationTimeResponse> create(
             @RequestBody
             @Valid
-            ReservationTimeRequest reservationTimeRequest) {
-        ReservationTime request = reservationTimeRequest.toEntity();
+            ReservationTimeCreate reservationTimeCreate) {
+        ReservationTime request = reservationTimeCreate.toEntity();
         ReservationTime savedTime = reservationTimeService.save(request);
         ReservationTimeResponse responseDto = ReservationTimeResponse.from(savedTime);
         return ResponseEntity.created(URI.create("/times")).body(responseDto);
