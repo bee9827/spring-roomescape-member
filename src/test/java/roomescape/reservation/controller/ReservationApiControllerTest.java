@@ -151,7 +151,7 @@
 //
 //        }
 //
-//        @DisplayName("400: memberId 입력 예외")
+//        @DisplayName("400: id 입력 예외")
 //        @ParameterizedTest
 //        @NullAndEmptySource
 //        void nameException(String name) throws Exception {
@@ -159,7 +159,7 @@
 //                            MockMvcRequestBuilders.post(BASE_URL)
 //                                    .content("""
 //                                            {
-//                                                "memberId" : "%s",
+//                                                "id" : "%s",
 //                                                "date" : "%s",
 //                                                "time" : "%s"
 //                                            }
@@ -178,7 +178,7 @@
 //                            MockMvcRequestBuilders.post(BASE_URL)
 //                                    .content("""
 //                                            {
-//                                                "memberId" : "%s",
+//                                                "id" : "%s",
 //                                                "date" : "%s",
 //                                                "time" : "%s"
 //                                            }
@@ -196,7 +196,7 @@
 //                            MockMvcRequestBuilders.post(BASE_URL)
 //                                    .content("""
 //                                            {
-//                                                "memberId" : "%s",
+//                                                "id" : "%s",
 //                                                "date" : "%s",
 //                                                "time" : "%s"
 //                                            }

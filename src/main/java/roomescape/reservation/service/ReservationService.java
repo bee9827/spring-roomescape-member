@@ -6,7 +6,7 @@ import roomescape.common.exception.status.MemberErrorStatus;
 import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.member.domain.Member;
 import roomescape.member.repository.MemberRepository;
-import roomescape.reservation.controller.ReservationFilterParams;
+import roomescape.reservation.controller.dto.reqeust.ReservationFilterParams;
 import roomescape.reservation.controller.dto.response.ReservationResponse;
 import roomescape.reservation.domain.Reservation;
 import roomescape.reservation.repository.ReservationRepository;

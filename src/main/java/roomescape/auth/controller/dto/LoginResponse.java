@@ -1,16 +1,16 @@
-package roomescape.member.controller.dto.response;
+package roomescape.auth.controller.dto;
 
 import lombok.Builder;
 import roomescape.member.service.dto.result.MemberResult;
 
 @Builder
-public record MemberResponse(
+public record LoginResponse(
         Long id,
         String email,
         String name
 ) {
-    public static MemberResponse from(MemberResult memberResult) {
-        return MemberResponse.builder()
+    public static LoginResponse from(MemberResult memberResult) {
+        return LoginResponse.builder()
                 .id(memberResult.id())
                 .email(memberResult.email())
                 .name(memberResult.name())

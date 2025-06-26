@@ -19,14 +19,14 @@ import java.util.List;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public MemberResponse save(MemberCreateCommand createCommand) {
+    public MemberResult save(MemberCreateCommand createCommand) {
         Member member = Member.builder()
                 .name(createCommand.name())
                 .email(createCommand.email())
                 .password(createCommand.password())
                 .build();
 
-        return new MemberResponse(save(member));
+        return MemberResult.from(save(member));
     }
 
 //    private void delete(Member entity) {
@@ -36,8 +36,11 @@ public class MemberService {
 //        memberRepository.deleteById(entity.getId());
 //    }
 
-    public List<Member> findAll() {
-        return memberRepository.findAll();
+    public List<MemberResult> findAll() {
+        return memberRepository.findAll()
+                .stream()
+                .map(MemberResult::from)
+                .toList();
     }
 
     public MemberResult findById(Long id) {

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import roomescape.reservation.controller.dto.reqeust.ReservationFilterParams;
 import roomescape.reservation.controller.dto.request.ReservationCreateRequestForAdmin;
 import roomescape.reservation.service.ReservationService;
 import roomescape.reservation.controller.dto.response.ReservationResponse;

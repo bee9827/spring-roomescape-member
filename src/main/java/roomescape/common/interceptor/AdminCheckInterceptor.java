@@ -1,4 +1,4 @@
-package roomescape.common.config;
+package roomescape.common.interceptor;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -6,17 +6,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import roomescape.common.config.auth.JwtProvider;
-import roomescape.common.config.auth.service.AuthService;
+import roomescape.auth.TokenProvider;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.util.CookieUtil;
 import roomescape.member.domain.Role;
-import roomescape.member.service.dto.result.MemberResult;
 
 @Component
 @RequiredArgsConstructor
 public class AdminCheckInterceptor implements HandlerInterceptor {
-    private final AuthService authService;
+    private final TokenProvider tokenProvider;
 
     @Override
     public boolean preHandle(
@@ -27,10 +25,10 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
 
         try {
             Cookie[] cookies = request.getCookies();
-            String token = CookieUtil.getTokenByName(JwtProvider.NAME, cookies);
+            String token = CookieUtil.getTokenByName(TokenProvider.NAME, cookies);
 
-            MemberResult memberResult = authService.findMemberByToken(token);
-            if (Role.isAdmin(memberResult.role())) return true;
+            Role role = tokenProvider.getRole(token);
+            if (Role.isAdmin(role)) return true;
 
         } catch (RestApiException e) {
             response.setStatus(403);

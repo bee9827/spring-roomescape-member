@@ -1,4 +1,4 @@
-package roomescape.reservation.controller;
+package roomescape.reservation.controller.dto.reqeust;
 
 import org.springframework.web.bind.annotation.RequestParam;
 

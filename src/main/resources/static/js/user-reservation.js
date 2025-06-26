@@ -38,11 +38,6 @@ function renderTheme(themes) {
   themes.forEach(theme => {
     const name = theme.name;
     const themeId = theme.id;
-    /*
-    TODO: [3단계] 사용자 예약 - 테마 목록 조회 API 호출 후 렌더링
-          response 명세에 맞춰 createSlot 함수 호출 시 값 설정
-          createSlot('theme', theme name, theme id) 형태로 호출
-    */
     themeSlots.appendChild(createSlot('theme', name, themeId));
   });
 }
@@ -87,11 +82,7 @@ function checkDateAndTheme() {
 }
 
 function fetchAvailableTimes(date, themeId) {
-  /*
-  TODO: [3단계] 사용자 예약 - 예약 가능 시간 조회 API 호출
-        요청 포맷에 맞게 설정
-  */
-  fetch(`/times/available?themeId=${themeId}&date=${date}`, { // 예약 가능 시간 조회 API endpoint`
+  fetch(`/times/available?date=${date}&themeId=${themeId}`, { // 예약 가능 시간 조회 API endpoint
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -100,10 +91,10 @@ function fetchAvailableTimes(date, themeId) {
     if (response.status === 200) return response.json();
     throw new Error('Read failed');
   }).then(renderAvailableTimes)
-  .catch(error => console.error("Error fetching available times:", error));
+      .catch(error => console.error("Error fetching available times:", error));
 }
 
-function renderAvailableTimes(times) {
+function renderAvailableTimes(data) {
   const timeSection = document.getElementById("time-section");
   if (timeSection.classList.contains("disabled")) {
     timeSection.classList.remove("disabled");
@@ -111,11 +102,11 @@ function renderAvailableTimes(times) {
 
   const timeSlots = document.getElementById('time-slots');
   timeSlots.innerHTML = '';
-  if (times.length === 0) {
+  if (data.length === 0) {
     timeSlots.innerHTML = '<div class="no-times">선택할 수 있는 시간이 없습니다.</div>';
     return;
   }
-  times.forEach(time => {
+  data.forEach(time => {
     const startAt = time.startAt;
     const timeId = time.timeId;
     const alreadyBooked = time.booked;
@@ -149,19 +140,13 @@ function onReservationButtonClick() {
   const selectedDate = document.getElementById("datepicker").value;
   const selectedThemeId = document.querySelector('.theme-slot.active')?.getAttribute('data-theme-id');
   const selectedTimeId = document.querySelector('.time-slot.active')?.getAttribute('data-time-id');
+  // const name = document.getElementById('user-name').value;
 
   if (selectedDate && selectedThemeId && selectedTimeId) {
-
-    /*
-    TODO: [3단계] 사용자 예약 - 예약 요청 API 호출
-          [5단계] 예약 생성 기능 변경 - 사용자
-          request 명세에 맞게 설정
-    */
     const reservationData = {
       date: selectedDate,
       themeId: selectedThemeId,
-      timeId: selectedThemeId,
-      // name: name
+      timeId: selectedTimeId,
     };
 
     fetch('/reservations', {

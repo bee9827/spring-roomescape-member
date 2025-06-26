@@ -26,15 +26,7 @@ public class MemberApiController {
             @Valid
             MemberCreateRequest memberCreateRequest
     ) {
-        return ResponseEntity.ok().body(memberService.save(memberCreateRequest.toCommand()));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<MemberResponse>> getMembers() {
-        List<MemberResponse> responseDto = memberService.findAll()
-                .stream()
-                .map(MemberResponse::new)
-                .toList();
-        return ResponseEntity.ok(responseDto);
+        MemberResponse responseDto = MemberResponse.from(memberService.save(memberCreateRequest.toCommand()));
+        return ResponseEntity.ok().body(responseDto);
     }
 }

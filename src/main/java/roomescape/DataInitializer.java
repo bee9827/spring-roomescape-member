@@ -4,15 +4,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import roomescape.member.controller.dto.response.MemberResponse;
 import roomescape.member.domain.Member;
 import roomescape.member.domain.Role;
 import roomescape.member.service.MemberService;
-import roomescape.reservation.domain.Reservation;
+import roomescape.member.service.dto.command.MemberCreateCommand;
+import roomescape.member.service.dto.result.MemberResult;
 import roomescape.reservation.service.ReservationService;
-import roomescape.reservationTime.domain.ReservationTime;
+import roomescape.reservation.service.dto.command.ReservationCreateCommand;
+import roomescape.reservationTime.controller.dto.response.ReservationTimeResponse;
 import roomescape.reservationTime.service.ReservationTimeService;
-import roomescape.theme.domain.Theme;
+import roomescape.reservationTime.service.dto.command.ReservationTimeCreateCommand;
+import roomescape.theme.controller.dto.ThemeResponse;
 import roomescape.theme.service.ThemeService;
+import roomescape.theme.service.dto.command.ThemeCreateCommand;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,7 +34,7 @@ public class DataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
 
-        Member member = Member.builder()
+        MemberCreateCommand member = MemberCreateCommand.builder()
                 .name("용성")
                 .email("ehfrhfo9494@naver.com")
                 .password("1007")
@@ -42,51 +47,52 @@ public class DataInitializer implements ApplicationRunner {
                 .role(Role.ADMIN)
                 .build();
 
-        ReservationTime time = ReservationTime.builder()
+        ReservationTimeCreateCommand time = ReservationTimeCreateCommand.builder()
                 .startAt(LocalTime.of(10, 0))
                 .build();
 
-        ReservationTime time2 = ReservationTime.builder()
+        ReservationTimeCreateCommand time2 = ReservationTimeCreateCommand.builder()
                 .startAt(LocalTime.of(13, 0))
                 .build();
 
-        ReservationTime time3 = ReservationTime.builder()
+        ReservationTimeCreateCommand time3 = ReservationTimeCreateCommand.builder()
                 .startAt(LocalTime.of(16, 0))
                 .build();
 
-        Theme theme = Theme.builder()
+        ThemeCreateCommand theme = ThemeCreateCommand.builder()
                 .name("저주의 방")
                 .description("테스트용")
                 .thumbnail("url")
                 .build();
 
-        Theme theme2 = Theme.builder()
+        ThemeCreateCommand theme2 = ThemeCreateCommand.builder()
                 .name("승리의 방")
                 .description("테스트용")
                 .thumbnail("url")
                 .build();
 
-        Theme theme3 = Theme.builder()
+        ThemeCreateCommand theme3 = ThemeCreateCommand.builder()
                 .name("축배의 방")
                 .description("테스트용")
                 .thumbnail("url")
                 .build();
 
-        Reservation reservation = Reservation.builder()
-                .member(member)
-                .theme(theme)
-                .date(LocalDate.now().plusDays(1))
-                .reservationTime(time)
-                .build();
+        MemberResult savedMember = memberService.save(member);
 
-        memberService.save(member);
-        memberService.save(admin);
-        reservationTimeService.save(time);
+        ReservationTimeResponse savedReservationTime = reservationTimeService.save(time);
         reservationTimeService.save(time2);
         reservationTimeService.save(time3);
-        themeService.save(theme);
+        ThemeResponse savedTheme = themeService.save(theme);
         themeService.save(theme2);
         themeService.save(theme3);
+
+        ReservationCreateCommand reservation = ReservationCreateCommand.builder()
+                .memberId(savedMember.id())
+                .themeId(savedTheme.id())
+                .date(LocalDate.now().plusDays(1))
+                .reservationTimeId(savedReservationTime.id())
+                .build();
+
         reservationService.save(reservation);
     }
 }
