@@ -1,4 +1,4 @@
-package roomescape.common.config.auth;
+package roomescape.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -17,14 +17,14 @@ import java.time.Duration;
 import java.util.Date;
 
 @Component
-public class JwtProvider {
+public class TokenProvider {
     public static final String NAME = "token";
 
     private final SecretKey secretKey;
     @Getter
     private final Duration expiry;
 
-    public JwtProvider(
+    public TokenProvider(
             @Value("${security.jwt.secret_key}")
             String secretKey,
 
@@ -39,7 +39,7 @@ public class JwtProvider {
         Date expiration = new Date(System.currentTimeMillis() + expiry.toMillis());
 
         return Jwts.builder()
-                .claim("memberId", memberId)
+                .claim("id", memberId)
                 .claim("role", role)
                 .expiration(expiration)
                 .signWith(secretKey)
@@ -65,7 +65,13 @@ public class JwtProvider {
     public Long getMemberId(String token) {
         validateToken(token);
 
-        return getClaims(token).get("memberId", Long.class);
+        return getClaims(token).get("id", Long.class);
+    }
+
+    public Role getRole(String token) {
+        validateToken(token);
+
+        return Role.valueOf(getClaims(token).get("role", String.class));
     }
 
     public Claims getClaims(String token) {

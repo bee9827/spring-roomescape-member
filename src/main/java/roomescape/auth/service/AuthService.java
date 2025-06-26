@@ -1,10 +1,9 @@
-package roomescape.common.config.auth.service;
+package roomescape.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import roomescape.common.config.auth.JwtProvider;
-import roomescape.common.config.auth.service.dto.LoginRequest;
-import roomescape.member.domain.Member;
+import roomescape.auth.TokenProvider;
+import roomescape.auth.controller.dto.LoginRequest;
 import roomescape.member.service.MemberService;
 import roomescape.member.service.dto.result.MemberResult;
 
@@ -12,15 +11,15 @@ import roomescape.member.service.dto.result.MemberResult;
 @RequiredArgsConstructor
 public class AuthService {
     private final MemberService memberService;
-    private final JwtProvider jwtProvider;
+    private final TokenProvider tokenProvider;
 
     public String createToken(LoginRequest loginRequest) {
         MemberResult memberResult = memberService.findByEmailAndPassword(loginRequest.email(), loginRequest.password());
-        return jwtProvider.generateToken(memberResult.memberId(), memberResult.role());
+        return tokenProvider.generateToken(memberResult.id(), memberResult.role());
     }
 
-    public MemberResult findMemberByToken(String token) {
-        Long memberId = jwtProvider.getMemberId(token);
-        return memberService.findById(memberId);
+    public MemberResult getMember(Long id) {
+        return memberService.findById(id);
     }
+
 }

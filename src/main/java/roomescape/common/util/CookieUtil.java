@@ -1,7 +1,7 @@
 package roomescape.common.util;
 
 import jakarta.servlet.http.Cookie;
-import roomescape.common.config.auth.JwtProvider;
+import roomescape.auth.TokenProvider;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.AuthErrorStatus;
 
@@ -25,7 +25,7 @@ public class CookieUtil {
         if (cookies == null) throw new RestApiException(AuthErrorStatus.NOT_FOUND_COOKIE);
 
         return Arrays.stream(cookies)
-                .filter(c -> JwtProvider.NAME.equals(c.getName()))
+                .filter(c -> TokenProvider.NAME.equals(c.getName()))
                 .findFirst()
                 .orElseThrow(() -> new RestApiException(AuthErrorStatus.TOKEN_NOT_IN_COOKIE))
                 .getValue();

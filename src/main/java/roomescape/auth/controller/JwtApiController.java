@@ -1,4 +1,4 @@
-package roomescape.common.config.auth.controller;
+package roomescape.auth.controller;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import roomescape.common.config.AuthMember;
-import roomescape.common.config.auth.JwtProvider;
-import roomescape.common.config.auth.service.dto.LoginRequest;
-import roomescape.common.config.auth.service.dto.LoginResponse;
-import roomescape.common.config.auth.service.AuthService;
+import roomescape.auth.TokenProvider;
+import roomescape.auth.controller.dto.LoginRequest;
+import roomescape.auth.controller.dto.LoginResponse;
+import roomescape.auth.service.AuthService;
+import roomescape.common.resolver.AuthMember;
 import roomescape.common.util.CookieUtil;
-import roomescape.member.domain.Member;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class JwtApiController {
     @PostMapping("/login")
     public ResponseEntity<Void> login(
             @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        Cookie cookie = CookieUtil.createSessionCookie(JwtProvider.NAME, authService.createToken(loginRequest));
+        Cookie cookie = CookieUtil.createSessionCookie(TokenProvider.NAME, authService.createToken(loginRequest));
         response.addCookie(cookie);
 
         return ResponseEntity.ok().build();
@@ -33,14 +32,14 @@ public class JwtApiController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        Cookie deletedCookie = CookieUtil.deleteCookie(roomescape.common.config.auth.JwtProvider.NAME);
+        Cookie deletedCookie = CookieUtil.deleteCookie(TokenProvider.NAME);
         response.addCookie(deletedCookie);  // max-age: 0
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/login/check")
-    public ResponseEntity<LoginResponse> check(@AuthMember Member member) {
-        return ResponseEntity.ok(new LoginResponse(member));
+    public ResponseEntity<LoginResponse> check(@AuthMember Long authMemberId) {
+        return ResponseEntity.ok(LoginResponse.from(authService.getMember(authMemberId)));
     }
 
     /*
