@@ -18,13 +18,15 @@ public interface ReservationTimeRepository extends JpaRepository<ReservationTime
 
     @Query("""
             SELECT new roomescape.reservationTime.domain.AvailableReservationTime(
-                rt.id, rt.startAt, EXISTS(
+                rt.id,
+                rt.startAt,
+                EXISTS(
                     SELECT 1 FROM Reservation r
                     WHERE r.reservationTime = rt
                     AND r.theme.id = :themeId
-                    AND r.date= :date 
+                    AND r.date= :date
                 )
-            ) 
+            )
             FROM ReservationTime rt 
             ORDER BY rt.startAt
             """)

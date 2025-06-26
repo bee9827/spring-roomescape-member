@@ -6,6 +6,7 @@ import roomescape.common.config.auth.JwtProvider;
 import roomescape.common.config.auth.service.dto.LoginRequest;
 import roomescape.member.domain.Member;
 import roomescape.member.service.MemberService;
+import roomescape.member.service.dto.result.MemberResult;
 
 @Service
 @RequiredArgsConstructor
@@ -14,11 +15,11 @@ public class AuthService {
     private final JwtProvider jwtProvider;
 
     public String createToken(LoginRequest loginRequest) {
-        Member member = memberService.findByEmailAndPassword(loginRequest.email(), loginRequest.password());
-        return jwtProvider.generateToken(member.getId(), member.getRole());
+        MemberResult memberResult = memberService.findByEmailAndPassword(loginRequest.email(), loginRequest.password());
+        return jwtProvider.generateToken(memberResult.memberId(), memberResult.role());
     }
 
-    public Member findMemberByToken(String token) {
+    public MemberResult findMemberByToken(String token) {
         Long memberId = jwtProvider.getMemberId(token);
         return memberService.findById(memberId);
     }

@@ -7,10 +7,10 @@ import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.member.domain.Member;
 import roomescape.member.repository.MemberRepository;
 import roomescape.reservation.controller.ReservationFilterParams;
+import roomescape.reservation.controller.dto.response.ReservationResponse;
 import roomescape.reservation.domain.Reservation;
 import roomescape.reservation.repository.ReservationRepository;
-import roomescape.reservation.service.dto.ReservationInput;
-import roomescape.reservation.service.dto.ReservationOutput;
+import roomescape.reservation.service.dto.command.ReservationCreateCommand;
 import roomescape.reservationTime.domain.ReservationTime;
 import roomescape.reservationTime.repository.ReservationTimeRepository;
 import roomescape.theme.domain.Theme;
@@ -36,33 +36,29 @@ public class ReservationService {
         this.memberRepository = memberRepository;
     }
 
-    public ReservationOutput save(ReservationInput reservationInput) {
-        Member member = memberRepository.findById(reservationInput.memberId())
+    public ReservationResponse save(ReservationCreateCommand reservationCreateCommand) {
+        Member member = memberRepository.findById(reservationCreateCommand.memberId())
                 .orElseThrow(() -> new RestApiException(MemberErrorStatus.NOT_FOUND));
-        ReservationTime time = reservationTimeRepository.findById(reservationInput.reservationTimeId())
+        ReservationTime time = reservationTimeRepository.findById(reservationCreateCommand.reservationTimeId())
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.TIME_NOT_FOUND));
-        Theme theme = themeRepository.findById(reservationInput.themeId())
+        Theme theme = themeRepository.findById(reservationCreateCommand.themeId())
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.THEME_NOT_FOUND));
 
-        Reservation requestReservation = reservationInput.toEntity(member, theme, time);
+        Reservation createRequest = reservationCreateCommand.toEntity(member, theme, time);
 
-        return ReservationOutput.from(save(requestReservation));
+        return ReservationResponse.from(save(createRequest));
     }
 
-    public Reservation save(Reservation reservation) {
-        validateDuplicate(reservation);
-
-        return reservationRepository.save(reservation);
-    }
-
-    public Reservation findById(Long id) {
-        return reservationRepository.findById(id)
+    public ReservationResponse findById(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.NOT_FOUND));
+        return ReservationResponse.from(reservation);
     }
 
-    public List<Reservation> findAll() {
+    public List<ReservationResponse> findAll() {
         return reservationRepository.findAll()
                 .stream()
+                .map(ReservationResponse::from)
                 .toList();
     }
 
@@ -74,7 +70,7 @@ public class ReservationService {
         reservationRepository.deleteById(id);
     }
 
-    public List<ReservationOutput> findAllByFilter(ReservationFilterParams filterParams) {
+    public List<ReservationResponse> findAllByFilter(ReservationFilterParams filterParams) {
         Map<String, Object> filterParamsWithoutNull = new HashMap<>();
 
         try {
@@ -90,8 +86,14 @@ public class ReservationService {
 
         return reservationRepository.findAllByFilter(filterParamsWithoutNull)
                 .stream()
-                .map(ReservationOutput::from)
+                .map(ReservationResponse::from)
                 .toList();
+    }
+
+    private Reservation save(Reservation reservation) {
+        validateDuplicate(reservation);
+
+        return reservationRepository.save(reservation);
     }
 
     private void validateDuplicate(Reservation reservation) {

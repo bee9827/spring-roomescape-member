@@ -1,4 +1,4 @@
-package roomescape.reservation.service.dto;
+package roomescape.reservation.controller.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Builder
-public record ReservationOutput(
+public record ReservationResponse(
         Long id,
         String name,
         String themeName,
@@ -20,8 +20,8 @@ public record ReservationOutput(
     public static final String TIME_PATTERN = "HH:mm";
 
 
-    public static ReservationOutput from(Reservation reservation) {
-        return new ReservationOutput(
+    public static ReservationResponse from(Reservation reservation) {
+        return new ReservationResponse(
                 reservation.getId(),
                 reservation.getMember().getName(),
                 reservation.getTheme().getName(),

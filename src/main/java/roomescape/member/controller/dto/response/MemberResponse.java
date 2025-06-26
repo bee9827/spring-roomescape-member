@@ -1,13 +1,13 @@
-package roomescape.member.controller.dto;
+package roomescape.member.controller.dto.response;
 
 import roomescape.member.domain.Member;
 
-public record MemberResponseDto(
+public record MemberResponse(
     Long id,
     String email,
     String name
 ) {
-    public MemberResponseDto(Member member) {
+    public MemberResponse(Member member) {
         this(member.getId(), member.getEmail(), member.getName());
     }
 }

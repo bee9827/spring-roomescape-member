@@ -3,8 +3,8 @@ package roomescape.theme.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import roomescape.theme.controller.dto.ThemeRequestDto;
-import roomescape.theme.controller.dto.ThemeResponseDto;
+import roomescape.theme.controller.dto.ThemeCreateRequest;
+import roomescape.theme.controller.dto.ThemeResponse;
 import roomescape.theme.service.ThemeService;
 
 import java.net.URI;
@@ -18,29 +18,23 @@ public class ThemeApiController {
     private final ThemeService themeService;
 
     @PostMapping
-    public ResponseEntity<ThemeResponseDto> create(
+    public ResponseEntity<ThemeResponse> create(
             @RequestBody
-            ThemeRequestDto themeRequestDto
+            ThemeCreateRequest themeCreateRequestDto
     ) {
-        ThemeResponseDto themeResponseDto = new ThemeResponseDto(themeService.save(themeRequestDto));
-        URI uri = URI.create(BASE_URL + "/" + themeResponseDto.id());
-        return ResponseEntity.created(uri).body(themeResponseDto);
+        ThemeResponse themeResponse = themeService.save(themeCreateRequestDto.toCommand());
+        URI uri = URI.create(BASE_URL + "/" + themeResponse.id());
+        return ResponseEntity.created(uri).body(themeResponse);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ThemeResponseDto> getThemeById(@PathVariable Long id) {
-        ThemeResponseDto themeResponseDto = new ThemeResponseDto(themeService.findById(id));
-        return ResponseEntity.ok(themeResponseDto);
+    public ResponseEntity<ThemeResponse> getThemeById(@PathVariable Long id) {
+        return ResponseEntity.ok(themeService.findById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<ThemeResponseDto>> getThemes() {
-        List<ThemeResponseDto> responseDtos = themeService.findAll()
-                .stream()
-                .map(ThemeResponseDto::new)
-                .toList();
-
-        return ResponseEntity.ok(responseDtos);
+    public ResponseEntity<List<ThemeResponse>> getThemes() {
+        return ResponseEntity.ok(themeService.findAll());
     }
 
     @DeleteMapping("/{id}")

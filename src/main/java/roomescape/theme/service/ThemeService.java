@@ -5,9 +5,10 @@ import org.springframework.stereotype.Service;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ThemeErrorStatus;
 import roomescape.reservation.repository.ReservationRepository;
-import roomescape.theme.controller.dto.ThemeRequestDto;
+import roomescape.theme.controller.dto.ThemeResponse;
 import roomescape.theme.domain.Theme;
 import roomescape.theme.repository.ThemeRepository;
+import roomescape.theme.service.dto.command.ThemeCreateCommand;
 
 import java.util.List;
 
@@ -17,17 +18,23 @@ public class ThemeService {
     private final ThemeRepository themeRepository;
     private final ReservationRepository reservationRepository;
 
-    public List<Theme> findAll() {
-        return themeRepository.findAll();
+    public List<ThemeResponse> findAll() {
+        return themeRepository.findAll()
+                .stream()
+                .map(ThemeResponse::from)
+                .toList();
     }
 
-    public Theme findById(Long id) {
-        return themeRepository.findById(id)
+    public ThemeResponse findById(Long id) {
+        Theme theme = themeRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(ThemeErrorStatus.NOT_FOUND));
+        return ThemeResponse.from(theme);
     }
 
-    public Theme save(ThemeRequestDto themeRequestDto) {
-        return save(themeRequestDto.toEntity());
+    public ThemeResponse save(ThemeCreateCommand createCommand) {
+        Theme theme = save(createCommand.toEntity());
+
+        return ThemeResponse.from(theme);
     }
 
     public Theme save(Theme theme) {
@@ -37,6 +44,7 @@ public class ThemeService {
     public void deleteById(Long id) {
         validateThemeExists(id);
         validateReservationExists(id);
+
         themeRepository.deleteById(id);
     }
 

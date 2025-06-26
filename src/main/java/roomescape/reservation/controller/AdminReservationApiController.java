@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import roomescape.reservation.controller.dto.request.ReservationCreateRequestForAdmin;
 import roomescape.reservation.service.ReservationService;
-import roomescape.reservation.service.dto.ReservationInput;
-import roomescape.reservation.service.dto.ReservationOutput;
+import roomescape.reservation.controller.dto.response.ReservationResponse;
 
 import java.net.URI;
 import java.util.List;
@@ -20,22 +20,22 @@ public class AdminReservationApiController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<ReservationOutput> createReservation(
+    public ResponseEntity<ReservationResponse> createReservation(
             @RequestBody
             @Valid
-            ReservationInput reservationInput
+            ReservationCreateRequestForAdmin request
     ) {
-        ReservationOutput reservationResponse = reservationService.save(reservationInput);
+        ReservationResponse reservationResponse = reservationService.save(request.toCommand());
         URI uri = URI.create(BASE_URL + "/" + reservationResponse.id());
 
         return ResponseEntity.created(uri).body(reservationResponse);
     }
 
     @GetMapping
-    public ResponseEntity<List<ReservationOutput>> filterReservations(
+    public ResponseEntity<List<ReservationResponse>> filterReservations(
             ReservationFilterParams filterParams    //@ModelAttribute
     ) {
-        List<ReservationOutput> reservations = reservationService.findAllByFilter(filterParams);
+        List<ReservationResponse> reservations = reservationService.findAllByFilter(filterParams);
         return ResponseEntity.ok(reservations);
     }
 

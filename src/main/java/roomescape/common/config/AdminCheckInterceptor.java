@@ -10,7 +10,8 @@ import roomescape.common.config.auth.JwtProvider;
 import roomescape.common.config.auth.service.AuthService;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.util.CookieUtil;
-import roomescape.member.domain.Member;
+import roomescape.member.domain.Role;
+import roomescape.member.service.dto.result.MemberResult;
 
 @Component
 @RequiredArgsConstructor
@@ -28,12 +29,13 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
             Cookie[] cookies = request.getCookies();
             String token = CookieUtil.getTokenByName(JwtProvider.NAME, cookies);
 
-            Member member = authService.findMemberByToken(token);
-            member.validateAdmin();
-            return true;
-        }catch (RestApiException e) {
+            MemberResult memberResult = authService.findMemberByToken(token);
+            if (Role.isAdmin(memberResult.role())) return true;
+
+        } catch (RestApiException e) {
             response.setStatus(403);
             return false;
         }
+        return false;
     }
 }

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import roomescape.common.config.AuthMember;
 import roomescape.member.domain.Member;
 import roomescape.reservation.service.ReservationService;
-import roomescape.reservation.service.dto.ReservationOutput;
-import roomescape.reservation.service.dto.ReservationRequest;
+import roomescape.reservation.controller.dto.response.ReservationResponse;
+import roomescape.reservation.controller.dto.request.ReservationCreateRequestForMember;
 
 import java.net.URI;
 
@@ -23,17 +23,17 @@ public class ReservationApiController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<ReservationOutput> create(
+    public ResponseEntity<ReservationResponse> create(
             @RequestBody
             @Valid
-            ReservationRequest requestDto,
+            ReservationCreateRequestForMember requestDto,
 
             @AuthMember
             Member member
     ) {
-        ReservationOutput reservationOutput = reservationService.save(requestDto.toInput(member.getId()));
+        ReservationResponse reservationResponse = reservationService.save(requestDto.toCommand(member.getId()));
         URI uri = URI.create("/reservations/" + member.getId());
 
-        return ResponseEntity.created(uri).body(reservationOutput);
+        return ResponseEntity.created(uri).body(reservationResponse);
     }
 }

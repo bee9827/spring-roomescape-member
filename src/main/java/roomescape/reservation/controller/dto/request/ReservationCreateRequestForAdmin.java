@@ -1,19 +1,14 @@
-package roomescape.reservation.service.dto;
+package roomescape.reservation.controller.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
-import roomescape.member.domain.Member;
-import roomescape.reservation.domain.Reservation;
-import roomescape.reservationTime.domain.ReservationTime;
-import roomescape.theme.domain.Theme;
+import roomescape.reservation.service.dto.command.ReservationCreateCommand;
 
 import java.time.LocalDate;
 
-@Builder
-public record ReservationInput(
+public record ReservationCreateRequestForAdmin(
         @NotBlank(message = "멤버 Id는 공백일 수 없습니다.")
         Long memberId,
 
@@ -26,14 +21,14 @@ public record ReservationInput(
 
         @NotNull(message = "시간 Id는 공백일 수 없습니다.")
         @JsonProperty("timeId")
-        Long reservationTimeId) {
-
-    public Reservation toEntity(Member member, Theme theme, ReservationTime reservationTime) {
-        return Reservation.builder()
-                .member(member)
-                .date(date)
-                .theme(theme)
-                .reservationTime(reservationTime)
-                .build();
-    }
+        Long reservationTimeId
+) {
+        public ReservationCreateCommand toCommand() {
+                return ReservationCreateCommand.builder()
+                        .memberId(memberId)
+                        .date(date)
+                        .themeId(themeId)
+                        .reservationTimeId(reservationTimeId)
+                        .build();
+        }
 }

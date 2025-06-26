@@ -1,13 +1,15 @@
-package roomescape.theme.controller.dto;
+package roomescape.theme.service.dto.command;
 
+import lombok.Builder;
 import roomescape.theme.domain.Theme;
 
-public record ThemeRequestDto(
+@Builder
+public record ThemeCreateCommand(
         String name,
         String description,
         String thumbnail
 ) {
-    public Theme toEntity() {
+    public Theme toEntity(){
         return Theme.builder()
                 .name(name)
                 .description(description)

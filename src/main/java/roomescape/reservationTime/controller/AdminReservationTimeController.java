@@ -4,9 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import roomescape.reservationTime.domain.ReservationTime;
-import roomescape.reservationTime.service.dto.command.ReservationTimeCreate;
-import roomescape.reservationTime.service.dto.result.ReservationTimeResponse;
+import roomescape.reservationTime.controller.dto.request.ReservationTimeCreateRequest;
+import roomescape.reservationTime.controller.dto.response.ReservationTimeResponse;
 import roomescape.reservationTime.service.ReservationTimeService;
 
 import java.net.URI;
@@ -25,22 +24,14 @@ public class AdminReservationTimeController {
     public ResponseEntity<ReservationTimeResponse> create(
             @RequestBody
             @Valid
-            ReservationTimeCreate reservationTimeCreate) {
-        ReservationTime request = reservationTimeCreate.toEntity();
-        ReservationTime savedTime = reservationTimeService.save(request);
-        ReservationTimeResponse responseDto = ReservationTimeResponse.from(savedTime);
+            ReservationTimeCreateRequest reservationTimeCreateRequest) {
+        ReservationTimeResponse responseDto = reservationTimeService.save(reservationTimeCreateRequest.toCommand());
         return ResponseEntity.created(URI.create("/times")).body(responseDto);
     }
 
     @GetMapping
     public ResponseEntity<List<ReservationTimeResponse>> findAll() {
-        //잘못된 아이디 전달
-        List<ReservationTimeResponse> reservationTimeResponses = reservationTimeService.findAll()
-                .stream()
-                .map(ReservationTimeResponse::from)
-                .toList();
-
-        return ResponseEntity.ok(reservationTimeResponses);
+        return ResponseEntity.ok(reservationTimeService.findAll());
     }
 
     @DeleteMapping("/{id}")

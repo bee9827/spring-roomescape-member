@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import roomescape.member.controller.dto.MemberRequest;
-import roomescape.member.controller.dto.MemberResponseDto;
+import roomescape.member.controller.dto.request.MemberCreateRequest;
+import roomescape.member.controller.dto.response.MemberResponse;
 import roomescape.member.service.MemberService;
 
 import java.util.List;
@@ -21,19 +21,19 @@ public class MemberApiController {
     private final MemberService memberService;
 
     @PostMapping
-    public ResponseEntity<MemberResponseDto> createMember(
+    public ResponseEntity<MemberResponse> createMember(
             @RequestBody
             @Valid
-            MemberRequest memberRequest
+            MemberCreateRequest memberCreateRequest
     ) {
-        return ResponseEntity.ok().body(memberService.save(memberRequest));
+        return ResponseEntity.ok().body(memberService.save(memberCreateRequest.toCommand()));
     }
 
     @GetMapping
-    public ResponseEntity<List<MemberResponseDto>> getMembers() {
-        List<MemberResponseDto> responseDto = memberService.findAll()
+    public ResponseEntity<List<MemberResponse>> getMembers() {
+        List<MemberResponse> responseDto = memberService.findAll()
                 .stream()
-                .map(MemberResponseDto::new)
+                .map(MemberResponse::new)
                 .toList();
         return ResponseEntity.ok(responseDto);
     }
