@@ -4,10 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import roomescape.reservation.controller.dto.reqeust.ReservationFilterParams;
 import roomescape.reservation.controller.dto.request.ReservationCreateRequestForAdmin;
-import roomescape.reservation.service.ReservationService;
+import roomescape.reservation.controller.dto.request.ReservationSearchCriteria;
 import roomescape.reservation.controller.dto.response.ReservationResponse;
+import roomescape.reservation.service.ReservationService;
 
 import java.net.URI;
 import java.util.List;
@@ -34,9 +34,9 @@ public class AdminReservationApiController {
 
     @GetMapping
     public ResponseEntity<List<ReservationResponse>> filterReservations(
-            ReservationFilterParams filterParams    //@ModelAttribute
+            ReservationSearchCriteria reservationSearchCriteria    //@ModelAttribute
     ) {
-        List<ReservationResponse> reservations = reservationService.findAllByFilter(filterParams);
+        List<ReservationResponse> reservations = reservationService.searchByCriteria(reservationSearchCriteria);
         return ResponseEntity.ok(reservations);
     }
 

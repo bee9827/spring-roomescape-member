@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import roomescape.auth.TokenProvider;
 import roomescape.common.exception.RestApiException;
+import roomescape.common.exception.status.AuthErrorStatus;
 import roomescape.common.util.CookieUtil;
 import roomescape.member.domain.Role;
 
@@ -31,8 +32,7 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
             if (Role.isAdmin(role)) return true;
 
         } catch (RestApiException e) {
-            response.setStatus(403);
-            return false;
+            throw new RestApiException(AuthErrorStatus.NOT_AUTHORIZED);
         }
         return false;
     }

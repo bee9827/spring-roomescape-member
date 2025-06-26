@@ -29,6 +29,6 @@ class ReservationTest {
                         .reservationTime(reservationTime)
                         .build())
                 .isInstanceOf(RestApiException.class)
-                .hasMessage(ReservationErrorStatus.PAST_TIME.getMessage());
+                .hasMessage(ReservationErrorStatus.PAST_DATE_TIME.getMessage());
     }
 }

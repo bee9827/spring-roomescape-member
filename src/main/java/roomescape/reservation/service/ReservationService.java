@@ -1,40 +1,36 @@
 package roomescape.reservation.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.MemberErrorStatus;
 import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.member.domain.Member;
 import roomescape.member.repository.MemberRepository;
-import roomescape.reservation.controller.dto.reqeust.ReservationFilterParams;
+import roomescape.policy.Policy;
+import roomescape.reservation.controller.dto.request.ReservationSearchCriteria;
 import roomescape.reservation.controller.dto.response.ReservationResponse;
 import roomescape.reservation.domain.Reservation;
-import roomescape.reservation.repository.ReservationRepository;
+import roomescape.reservation.domain.ReservationRepository;
+import roomescape.reservation.domain.policy.DuplicateReservationPolicy;
+import roomescape.reservation.domain.policy.PastDateTimeReservationPolicy;
 import roomescape.reservation.service.dto.command.ReservationCreateCommand;
 import roomescape.reservationTime.domain.ReservationTime;
 import roomescape.reservationTime.repository.ReservationTimeRepository;
 import roomescape.theme.domain.Theme;
 import roomescape.theme.repository.ThemeRepository;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.time.Clock;
 import java.util.List;
-import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class ReservationService {
-    private final ReservationRepository reservationRepository;
+    private final ReservationRepository jpaReservationRepository;
     private final ReservationTimeRepository reservationTimeRepository;
     private final ThemeRepository themeRepository;
     private final MemberRepository memberRepository;
-
-
-    public ReservationService(ReservationRepository reservationRepository, ReservationTimeRepository reservationTimeRepository, ThemeRepository themeRepository, MemberRepository memberRepository) {
-        this.reservationRepository = reservationRepository;
-        this.reservationTimeRepository = reservationTimeRepository;
-        this.themeRepository = themeRepository;
-        this.memberRepository = memberRepository;
-    }
+    private final Clock clock;
 
     public ReservationResponse save(ReservationCreateCommand reservationCreateCommand) {
         Member member = memberRepository.findById(reservationCreateCommand.memberId())
@@ -50,59 +46,40 @@ public class ReservationService {
     }
 
     public ReservationResponse findById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.NOT_FOUND));
+        Reservation reservation = jpaReservationRepository.findById(id);
         return ReservationResponse.from(reservation);
     }
 
     public List<ReservationResponse> findAll() {
-        return reservationRepository.findAll()
+        return jpaReservationRepository.findAll()
                 .stream()
                 .map(ReservationResponse::from)
                 .toList();
     }
 
     public void deleteById(Long id) {
-        if (!reservationRepository.existsById(id)) {
+        if (!jpaReservationRepository.existsById(id)) {
             throw new RestApiException(ReservationErrorStatus.NOT_FOUND);
         }
 
-        reservationRepository.deleteById(id);
+        jpaReservationRepository.deleteById(id);
     }
 
-    public List<ReservationResponse> findAllByFilter(ReservationFilterParams filterParams) {
-        Map<String, Object> filterParamsWithoutNull = new HashMap<>();
-
-        try {
-            Field[] fields = filterParams.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                if (field.get(field) == null) continue;
-                filterParamsWithoutNull.put(field.getName(), field.get(field));
-            }
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("변수명 파싱 오류");
-        }
-
-        return reservationRepository.findAllByFilter(filterParamsWithoutNull)
+    public List<ReservationResponse> searchByCriteria(ReservationSearchCriteria reservationSearchCriteria) {
+        return jpaReservationRepository.findByCriteria(reservationSearchCriteria)
                 .stream()
                 .map(ReservationResponse::from)
                 .toList();
     }
 
     private Reservation save(Reservation reservation) {
-        validateDuplicate(reservation);
+        List<Policy<Reservation>> reservationPolicies = List.of(
+                new PastDateTimeReservationPolicy(clock),
+                new DuplicateReservationPolicy(jpaReservationRepository)
+        );
 
-        return reservationRepository.save(reservation);
-    }
+        reservation.validate(reservationPolicies);
 
-    private void validateDuplicate(Reservation reservation) {
-        if (reservationRepository.existsByDateAndThemeAndReservationTime(
-                reservation.getDate(),
-                reservation.getTheme(),
-                reservation.getReservationTime())
-        ) {
-            throw new RestApiException(ReservationErrorStatus.DUPLICATE);
-        }
+        return jpaReservationRepository.save(reservation);
     }
 }

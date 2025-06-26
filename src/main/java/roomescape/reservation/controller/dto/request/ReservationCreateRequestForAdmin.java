@@ -9,12 +9,12 @@ import roomescape.reservation.service.dto.command.ReservationCreateCommand;
 import java.time.LocalDate;
 
 public record ReservationCreateRequestForAdmin(
-        @NotBlank(message = "멤버 Id는 공백일 수 없습니다.")
-        Long memberId,
-
         @NotNull(message = "날짜는 공백일 수 없습니다.")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         LocalDate date,
+
+        @NotNull(message = "멤버 Id는 공백일 수 없습니다.")
+        Long memberId,
 
         @NotNull(message = "테마 Id는 공백일 수 없습니다.")
         Long themeId,
@@ -23,12 +23,12 @@ public record ReservationCreateRequestForAdmin(
         @JsonProperty("timeId")
         Long reservationTimeId
 ) {
-        public ReservationCreateCommand toCommand() {
-                return ReservationCreateCommand.builder()
-                        .memberId(memberId)
-                        .date(date)
-                        .themeId(themeId)
-                        .reservationTimeId(reservationTimeId)
-                        .build();
-        }
+    public ReservationCreateCommand toCommand() {
+        return ReservationCreateCommand.builder()
+                .memberId(memberId)
+                .date(date)
+                .themeId(themeId)
+                .reservationTimeId(reservationTimeId)
+                .build();
+    }
 }
