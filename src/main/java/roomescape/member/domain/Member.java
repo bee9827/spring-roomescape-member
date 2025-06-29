@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.AuthErrorStatus;
+import roomescape.common.exception.status.MemberErrorStatus;
 
 @Entity
 @AllArgsConstructor
@@ -28,15 +29,21 @@ public class Member {
     private Role role;
 
     @Builder
-    public Member(String name, String email, String password,Role role) {
+    public Member(String name, String email, String password, Role role) {
+        validateNameLength(name);
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role != null ? role : Role.USER;
     }
 
-    public void validateAdmin(){
-        if(this.role != Role.ADMIN){
+    private void validateNameLength(String name) {
+        if (name.length() < 2 || name.length() > 10)
+            throw new RestApiException(MemberErrorStatus.INVALID_NAME_LENGTH);
+    }
+
+    public void validateAdmin() {
+        if (this.role != Role.ADMIN) {
             throw new RestApiException(AuthErrorStatus.NOT_AUTHORIZED);
         }
     }

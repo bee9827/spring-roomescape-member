@@ -3,38 +3,33 @@ package roomescape.reservation.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import roomescape.common.exception.RestApiException;
-import roomescape.common.exception.status.MemberErrorStatus;
 import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.member.domain.Member;
 import roomescape.member.repository.MemberRepository;
-import roomescape.policy.Policy;
 import roomescape.reservation.controller.dto.request.ReservationSearchCriteria;
-import roomescape.reservation.controller.dto.response.ReservationResponse;
 import roomescape.reservation.domain.Reservation;
-import roomescape.reservation.domain.ReservationRepository;
-import roomescape.reservation.domain.policy.DuplicateReservationPolicy;
-import roomescape.reservation.domain.policy.PastDateTimeReservationPolicy;
+import roomescape.reservation.repository.ReservationRepository;
 import roomescape.reservation.service.dto.command.ReservationCreateCommand;
+import roomescape.reservation.service.dto.result.ReservationResult;
 import roomescape.reservationTime.domain.ReservationTime;
 import roomescape.reservationTime.repository.ReservationTimeRepository;
 import roomescape.theme.domain.Theme;
 import roomescape.theme.repository.ThemeRepository;
 
-import java.time.Clock;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
-    private final ReservationRepository jpaReservationRepository;
+    private final ReservationRepository reservationRepository;
     private final ReservationTimeRepository reservationTimeRepository;
     private final ThemeRepository themeRepository;
     private final MemberRepository memberRepository;
-    private final Clock clock;
+    private final ReservationValidator reservationValidator;
 
-    public ReservationResponse save(ReservationCreateCommand reservationCreateCommand) {
+    public ReservationResult save(ReservationCreateCommand reservationCreateCommand) {
         Member member = memberRepository.findById(reservationCreateCommand.memberId())
-                .orElseThrow(() -> new RestApiException(MemberErrorStatus.NOT_FOUND));
+                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.MEMBER_NOT_FOUND));
         ReservationTime time = reservationTimeRepository.findById(reservationCreateCommand.reservationTimeId())
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.TIME_NOT_FOUND));
         Theme theme = themeRepository.findById(reservationCreateCommand.themeId())
@@ -42,44 +37,49 @@ public class ReservationService {
 
         Reservation createRequest = reservationCreateCommand.toEntity(member, theme, time);
 
-        return ReservationResponse.from(save(createRequest));
+        return ReservationResult.from(save(createRequest));
     }
 
-    public ReservationResponse findById(Long id) {
-        Reservation reservation = jpaReservationRepository.findById(id);
-        return ReservationResponse.from(reservation);
+    public ReservationResult findById(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.NOT_FOUND));
+        return ReservationResult.from(reservation);
     }
 
-    public List<ReservationResponse> findAll() {
-        return jpaReservationRepository.findAll()
+    public List<ReservationResult> findAll() {
+        return reservationRepository.findAll()
                 .stream()
-                .map(ReservationResponse::from)
+                .map(ReservationResult::from)
                 .toList();
     }
 
     public void deleteById(Long id) {
-        if (!jpaReservationRepository.existsById(id)) {
+        if (!reservationRepository.existsById(id)) {
             throw new RestApiException(ReservationErrorStatus.NOT_FOUND);
         }
 
-        jpaReservationRepository.deleteById(id);
+        reservationRepository.deleteById(id);
     }
 
-    public List<ReservationResponse> searchByCriteria(ReservationSearchCriteria reservationSearchCriteria) {
-        return jpaReservationRepository.findByCriteria(reservationSearchCriteria)
+    public List<ReservationResult> searchByCriteria(ReservationSearchCriteria reservationSearchCriteria) {
+        return filter(reservationSearchCriteria)
                 .stream()
-                .map(ReservationResponse::from)
+                .map(ReservationResult::from)
                 .toList();
     }
 
-    private Reservation save(Reservation reservation) {
-        List<Policy<Reservation>> reservationPolicies = List.of(
-                new PastDateTimeReservationPolicy(clock),
-                new DuplicateReservationPolicy(jpaReservationRepository)
+    private List<Reservation> filter(ReservationSearchCriteria filter) {
+        return reservationRepository.filter(
+                filter.themeId(),
+                filter.memberId(),
+                filter.dateFrom(),
+                filter.dateTo()
         );
+    }
 
-        reservation.validate(reservationPolicies);
+    private Reservation save(Reservation reservation) {
+        reservationValidator.validate(reservation);
 
-        return jpaReservationRepository.save(reservation);
+        return reservationRepository.save(reservation);
     }
 }

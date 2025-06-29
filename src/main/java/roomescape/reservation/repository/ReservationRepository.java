@@ -2,7 +2,6 @@ package roomescape.reservation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import roomescape.reservation.domain.Reservation;
 import roomescape.reservationTime.domain.ReservationTime;
 import roomescape.theme.domain.Theme;
@@ -10,8 +9,7 @@ import roomescape.theme.domain.Theme;
 import java.time.LocalDate;
 import java.util.List;
 
-@Repository
-public interface JpaReservationRepository extends JpaRepository<Reservation, Long> {
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     boolean existsByThemeId(Long id);
 
     @Query("""
@@ -22,10 +20,12 @@ public interface JpaReservationRepository extends JpaRepository<Reservation, Lon
     List<Reservation> findAll();
 
     @Query("""
-            SELECT r FROM Reservation r
-            WHERE r.theme = :theme
-            AND r.date = :date
-            AND r.reservationTime = :reservationTime
+            SELECT EXISTS(
+                SELECT 1 FROM Reservation r
+                WHERE r.theme = :theme
+                AND r.date = :date
+                AND r.reservationTime = :reservationTime
+            )
             """)
     boolean isDuplicated(Theme theme, LocalDate date, ReservationTime reservationTime);
 

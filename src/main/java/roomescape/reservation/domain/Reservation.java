@@ -6,14 +6,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import roomescape.common.exception.RestApiException;
+import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.member.domain.Member;
-import roomescape.policy.Policy;
 import roomescape.reservationTime.domain.ReservationTime;
 import roomescape.theme.domain.Theme;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -52,20 +51,17 @@ public class Reservation {
 
     @Builder
     public Reservation(Member member, LocalDate date, ReservationTime reservationTime, Theme theme) {
+        validatePast(LocalDateTime.of(date, reservationTime.getStartAt()));
         this.member = member;
         this.date = date;
         this.reservationTime = reservationTime;
         this.theme = theme;
     }
 
-    public LocalDateTime getDateTime() {
-        return LocalDateTime.of(date, reservationTime.getStartAt());
-    }
-
-    public void validate(List<Policy<Reservation>> reservationPolicies) throws RestApiException {
-        reservationPolicies.forEach(policy ->
-                policy.validate(this)
-        );
+    public void validatePast(LocalDateTime dateTime) throws RestApiException {
+        if (LocalDateTime.now().isAfter(dateTime)) {
+            throw new RestApiException(ReservationErrorStatus.PAST_DATE_TIME);
+        }
     }
 
 }

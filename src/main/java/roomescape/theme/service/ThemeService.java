@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ThemeErrorStatus;
-import roomescape.reservation.repository.JpaReservationRepository;
+import roomescape.reservation.repository.ReservationRepository;
 import roomescape.theme.controller.dto.ThemeResponse;
 import roomescape.theme.domain.Theme;
 import roomescape.theme.repository.ThemeRepository;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ThemeService {
     private final ThemeRepository themeRepository;
-    private final JpaReservationRepository jpaReservationRepository;
+    private final ReservationRepository reservationRepository;
 
     public List<ThemeResponse> findAll() {
         return themeRepository.findAll()
@@ -55,7 +55,7 @@ public class ThemeService {
     }
 
     private void validateReservationExists(Long id) {
-        if (jpaReservationRepository.existsByThemeId(id)) {
+        if (reservationRepository.existsByThemeId(id)) {
             throw new RestApiException(ThemeErrorStatus.RESERVATION_EXIST);
         }
     }

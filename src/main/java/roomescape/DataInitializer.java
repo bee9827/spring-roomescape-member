@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import roomescape.member.controller.dto.response.MemberResponse;
 import roomescape.member.domain.Member;
 import roomescape.member.domain.Role;
 import roomescape.member.service.MemberService;
@@ -21,6 +20,7 @@ import roomescape.theme.service.dto.command.ThemeCreateCommand;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+
 
 @Component
 @RequiredArgsConstructor
@@ -80,11 +80,11 @@ public class DataInitializer implements ApplicationRunner {
         MemberResult savedMember = memberService.save(member);
 
         ReservationTimeResponse savedReservationTime = reservationTimeService.save(time);
-        reservationTimeService.save(time2);
-        reservationTimeService.save(time3);
+        ReservationTimeResponse savedReservationTime2 = reservationTimeService.save(time2);
+        ReservationTimeResponse savedReservationTime3 = reservationTimeService.save(time3);
         ThemeResponse savedTheme = themeService.save(theme);
-        themeService.save(theme2);
-        themeService.save(theme3);
+        ThemeResponse savedTheme2 = themeService.save(theme2);
+        ThemeResponse savedTheme3 = themeService.save(theme3);
 
         ReservationCreateCommand reservation = ReservationCreateCommand.builder()
                 .memberId(savedMember.id())
@@ -93,6 +93,22 @@ public class DataInitializer implements ApplicationRunner {
                 .reservationTimeId(savedReservationTime.id())
                 .build();
 
+        ReservationCreateCommand reservation2 = ReservationCreateCommand.builder()
+                .memberId(savedMember.id())
+                .themeId(savedTheme2.id())
+                .date(LocalDate.now().plusDays(1))
+                .reservationTimeId(savedReservationTime2.id())
+                .build();
+
+        ReservationCreateCommand reservation3 = ReservationCreateCommand.builder()
+                .memberId(savedMember.id())
+                .themeId(savedTheme3.id())
+                .date(LocalDate.now().plusDays(1))
+                .reservationTimeId(savedReservationTime3.id())
+                .build();
+
         reservationService.save(reservation);
+        reservationService.save(reservation2);
+        reservationService.save(reservation3);
     }
 }

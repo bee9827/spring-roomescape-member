@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import roomescape.reservation.controller.dto.request.ReservationCreateRequestForAdmin;
 import roomescape.reservation.controller.dto.request.ReservationSearchCriteria;
-import roomescape.reservation.controller.dto.response.ReservationResponse;
 import roomescape.reservation.service.ReservationService;
+import roomescape.reservation.service.dto.result.ReservationResult;
 
 import java.net.URI;
 import java.util.List;
@@ -21,22 +21,22 @@ public class AdminReservationApiController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<ReservationResponse> createReservation(
+    public ResponseEntity<ReservationResult> createReservation(
             @RequestBody
             @Valid
             ReservationCreateRequestForAdmin request
     ) {
-        ReservationResponse reservationResponse = reservationService.save(request.toCommand());
-        URI uri = URI.create(BASE_URL + "/" + reservationResponse.id());
+        ReservationResult savedReservation = reservationService.save(request.toCommand());
+        URI uri = URI.create(BASE_URL + "/" + savedReservation.id());
 
-        return ResponseEntity.created(uri).body(reservationResponse);
+        return ResponseEntity.created(uri).body(savedReservation);
     }
 
     @GetMapping
-    public ResponseEntity<List<ReservationResponse>> filterReservations(
+    public ResponseEntity<List<ReservationResult>> filterReservations(
             ReservationSearchCriteria reservationSearchCriteria    //@ModelAttribute
     ) {
-        List<ReservationResponse> reservations = reservationService.searchByCriteria(reservationSearchCriteria);
+        List<ReservationResult> reservations = reservationService.searchByCriteria(reservationSearchCriteria);
         return ResponseEntity.ok(reservations);
     }
 

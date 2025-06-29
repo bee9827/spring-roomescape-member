@@ -26,8 +26,8 @@ public record ReservationCreateCommand(
 
         @NotNull(message = "시간 Id는 공백일 수 없습니다.")
         @JsonProperty("timeId")
-        Long reservationTimeId)
-{
+        Long reservationTimeId
+) {
     public Reservation toEntity(Member member, Theme theme, ReservationTime reservationTime) {
         return Reservation.builder()
                 .member(member)
