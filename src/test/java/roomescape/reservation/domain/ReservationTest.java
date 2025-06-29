@@ -1,11 +1,11 @@
 package roomescape.reservation.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
+import roomescape.member.domain.Member;
+import roomescape.member.domain.Role;
 import roomescape.reservationTime.domain.ReservationTime;
 
 import java.time.LocalDate;
@@ -13,18 +13,22 @@ import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@AllArgsConstructor
-@RequiredArgsConstructor
 class ReservationTest {
 
     @Test
-    @DisplayName("예외: 지나간 날짜와 시간은 예약 불가능 하다.")
+    @DisplayName("PAST 예외: 지난 시간에 대한 Reservation 생성은 불가능 하다.")
     public void presentOrFuture() {
         ReservationTime reservationTime = new ReservationTime(LocalTime.now());
+        Member member = Member.builder()
+                .name("테스트")
+                .password("1007")
+                .email("ehfrhfo9494@naver.com")
+                .role(Role.USER)
+                .build();
 
         assertThatThrownBy(
                 () -> Reservation.builder()
-                        .name("테스트")
+                        .member(member)
                         .date(LocalDate.now())
                         .reservationTime(reservationTime)
                         .build())
