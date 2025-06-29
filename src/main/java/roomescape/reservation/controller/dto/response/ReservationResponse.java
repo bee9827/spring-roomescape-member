@@ -4,6 +4,7 @@ package roomescape.reservation.controller.dto.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import roomescape.reservation.domain.Reservation;
+import roomescape.reservation.service.dto.result.ReservationResult;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,13 +21,13 @@ public record ReservationResponse(
     public static final String TIME_PATTERN = "HH:mm";
 
 
-    public static ReservationResponse from(Reservation reservation) {
+    public static ReservationResponse from(ReservationResult reservation) {
         return new ReservationResponse(
-                reservation.getId(),
-                reservation.getMember().getName(),
-                reservation.getTheme().getName(),
-                reservation.getDate(),
-                reservation.getReservationTime().getStartAt()
+                reservation.id(),
+                reservation.memberResult().name(),
+                reservation.themeResult().name(),
+                reservation.date(),
+                reservation.reservationTimeResult().startAt()
         );
     }
 }
