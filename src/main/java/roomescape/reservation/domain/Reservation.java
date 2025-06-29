@@ -13,6 +13,7 @@ import roomescape.theme.domain.Theme;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -51,16 +52,20 @@ public class Reservation {
 
     @Builder
     public Reservation(Member member, LocalDate date, ReservationTime reservationTime, Theme theme) {
-        validatePast(LocalDateTime.of(date, reservationTime.getStartAt()));
+        validatePast(date, reservationTime.getStartAt());
         this.member = member;
         this.date = date;
         this.reservationTime = reservationTime;
         this.theme = theme;
     }
 
-    public void validatePast(LocalDateTime dateTime) throws RestApiException {
+    public void validatePast(LocalDate date, LocalTime time) throws RestApiException {
+        if (date == null || time == null) {
+            throw new RestApiException(ReservationErrorStatus.INVALID_DATE_TIME);
+        }
+        LocalDateTime dateTime = LocalDateTime.of(date, time);
         if (LocalDateTime.now().isAfter(dateTime)) {
-            throw new RestApiException(ReservationErrorStatus.PAST_DATE_TIME);
+            throw new RestApiException(ReservationErrorStatus.INVALID_DATE_TIME);
         }
     }
 

@@ -38,13 +38,7 @@ public class Member {
     }
 
     private void validateNameLength(String name) {
-        if (name.length() < 2 || name.length() > 10)
+        if (name == null || name.length() < 2 || name.length() > 10)
             throw new RestApiException(MemberErrorStatus.INVALID_NAME_LENGTH);
-    }
-
-    public void validateAdmin() {
-        if (this.role != Role.ADMIN) {
-            throw new RestApiException(AuthErrorStatus.NOT_AUTHORIZED);
-        }
     }
 }
