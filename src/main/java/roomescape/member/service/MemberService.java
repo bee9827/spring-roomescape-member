@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.MemberErrorStatus;
-import roomescape.member.controller.dto.response.MemberResponse;
 import roomescape.member.domain.Member;
 import roomescape.member.repository.MemberRepository;
 import roomescape.member.service.dto.command.MemberCreateCommand;

@@ -19,4 +19,4 @@ spring:
 security:
   jwt:
     secret_key: 7Iqk7ZSE66eB67aA7Yq4X+ujuOydtOyKpOy8gOydtO2UhF/rqaTrsoRf67mE67CA67KI7Zi4
-    expiry: 300000
+    expiry: 3600000 # 1시간

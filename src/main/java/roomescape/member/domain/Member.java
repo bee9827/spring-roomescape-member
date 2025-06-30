@@ -1,11 +1,10 @@
 package roomescape.member.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import roomescape.common.exception.RestApiException;
-import roomescape.common.exception.status.AuthErrorStatus;
 import roomescape.common.exception.status.MemberErrorStatus;
 
 @Entity
@@ -20,9 +19,9 @@ public class Member {
     @NotBlank
     @Column(unique = true, nullable = false)
     private String name;
-
-    @Email
     private String email;
+
+    @NotBlank
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -40,5 +39,9 @@ public class Member {
     private void validateNameLength(String name) {
         if (name == null || name.length() < 2 || name.length() > 10)
             throw new RestApiException(MemberErrorStatus.INVALID_NAME_LENGTH);
+    }
+
+    private void validateEmail(String email) {
+
     }
 }
