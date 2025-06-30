@@ -60,21 +60,21 @@ public class DataInitializer implements ApplicationRunner {
                 .build();
 
         ThemeCreateCommand theme = ThemeCreateCommand.builder()
-                .name("저주의 방")
-                .description("테스트용")
-                .thumbnail("url")
+                .name("The Haunted Mansion")
+                .description("Solve the mysteries of the haunted mansion to escape.")
+                .thumbnail("https://i.pinimg.com/236x/6e/bc/46/6ebc461a94a49f9ea3b8bbe2204145d4.jpg")
                 .build();
 
         ThemeCreateCommand theme2 = ThemeCreateCommand.builder()
-                .name("승리의 방")
-                .description("테스트용")
-                .thumbnail("url")
+                .name("Secret Agent Mission")
+                .description("Complete your secret agent mission before time runs out.")
+                .thumbnail("https://i.pinimg.com/236x/6e/bc/46/6ebc461a94a49f9ea3b8bbe2204145d4.jpg")
                 .build();
 
         ThemeCreateCommand theme3 = ThemeCreateCommand.builder()
-                .name("축배의 방")
-                .description("테스트용")
-                .thumbnail("url")
+                .name("Pirate''s Treasure")
+                .description("Find the hidden pirate''s treasure in this thrilling adventure.")
+                .thumbnail("https://i.pinimg.com/236x/6e/bc/46/6ebc461a94a49f9ea3b8bbe2204145d4.jpg")
                 .build();
 
         MemberResult savedMember = memberService.save(member);
