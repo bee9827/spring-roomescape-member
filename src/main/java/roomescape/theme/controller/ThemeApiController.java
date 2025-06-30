@@ -24,6 +24,10 @@ public class ThemeApiController {
 
     @GetMapping
     public ResponseEntity<List<ThemeResponse>> getThemes() {
-        return ResponseEntity.ok(themeService.findAll());
+        List<ThemeResponse> themeResponses = themeService.findAll()
+                .stream()
+                .map(ThemeResponse::from)
+                .toList();
+        return ResponseEntity.ok(themeResponses);
     }
 }

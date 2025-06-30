@@ -22,19 +22,23 @@ public class AdminThemeApiController {
             @RequestBody
             ThemeCreateRequest themeCreateRequestDto
     ) {
-        ThemeResponse themeResponse = themeService.save(themeCreateRequestDto.toCommand());
+        ThemeResponse themeResponse = ThemeResponse.from(themeService.save(themeCreateRequestDto.toCommand()));
         URI uri = URI.create(BASE_URL + "/" + themeResponse.id());
         return ResponseEntity.created(uri).body(themeResponse);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ThemeResponse> getThemeById(@PathVariable Long id) {
-        return ResponseEntity.ok(themeService.findById(id));
+        return ResponseEntity.ok(ThemeResponse.from(themeService.findById(id)));
     }
 
     @GetMapping
     public ResponseEntity<List<ThemeResponse>> getThemes() {
-        return ResponseEntity.ok(themeService.findAll());
+        List<ThemeResponse> themeResponses = themeService.findAll()
+                .stream()
+                .map(ThemeResponse::from)
+                .toList();
+        return ResponseEntity.ok(themeResponses);
     }
 
     @DeleteMapping("/{id}")

@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ThemeErrorStatus;
 import roomescape.reservation.repository.ReservationRepository;
-import roomescape.theme.controller.dto.ThemeResponse;
 import roomescape.theme.domain.Theme;
 import roomescape.theme.repository.ThemeRepository;
 import roomescape.theme.service.dto.command.ThemeCreateCommand;
 import roomescape.theme.service.dto.result.PopularThemeResult;
+import roomescape.theme.service.dto.result.ThemeResult;
 
 import java.util.List;
 
@@ -19,27 +19,31 @@ public class ThemeService {
     private final ThemeRepository themeRepository;
     private final ReservationRepository reservationRepository;
 
-    public List<ThemeResponse> findAll() {
+    public List<ThemeResult> findAll() {
         return themeRepository.findAll()
                 .stream()
-                .map(ThemeResponse::from)
+                .map(ThemeResult::from)
                 .toList();
     }
 
-    public ThemeResponse findById(Long id) {
+    public ThemeResult findById(Long id) {
         Theme theme = themeRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(ThemeErrorStatus.NOT_FOUND));
-        return ThemeResponse.from(theme);
+        return ThemeResult.from(theme);
     }
 
-    public ThemeResponse save(ThemeCreateCommand createCommand) {
+    public ThemeResult save(ThemeCreateCommand createCommand) {
         Theme theme = save(createCommand.toEntity());
 
-        return ThemeResponse.from(theme);
+        return ThemeResult.from(theme);
     }
 
     public Theme save(Theme theme) {
         return themeRepository.save(theme);
+    }
+
+    public List<PopularThemeResult> getPopularThemes() {
+        return themeRepository.findPopularThemes();
     }
 
     public void deleteById(Long id) {
@@ -59,9 +63,5 @@ public class ThemeService {
         if (reservationRepository.existsByThemeId(id)) {
             throw new RestApiException(ThemeErrorStatus.RESERVATION_EXIST);
         }
-    }
-
-    public List<PopularThemeResult> getPopularThemes() {
-        return themeRepository.findPopularThemes();
     }
 }

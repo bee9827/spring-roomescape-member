@@ -3,6 +3,7 @@ package roomescape.theme.controller.dto;
 
 import lombok.Builder;
 import roomescape.theme.domain.Theme;
+import roomescape.theme.service.dto.result.ThemeResult;
 
 @Builder
 public record ThemeResponse(
@@ -11,12 +12,12 @@ public record ThemeResponse(
         String description,
         String thumbnail
 ) {
-    public static ThemeResponse from(Theme theme) {
+    public static ThemeResponse from(ThemeResult themeResult) {
         return ThemeResponse.builder()
-                .id(theme.getId())
-                .name(theme.getName())
-                .description(theme.getDescription())
-                .thumbnail(theme.getThumbnail())
+                .id(themeResult.id())
+                .name(themeResult.name())
+                .description(themeResult.description())
+                .thumbnail(themeResult.thumbnail())
                 .build();
     }
 }

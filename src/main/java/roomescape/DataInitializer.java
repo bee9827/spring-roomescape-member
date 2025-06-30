@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import roomescape.member.domain.Member;
 import roomescape.member.domain.Role;
+import roomescape.member.repository.MemberRepository;
 import roomescape.member.service.MemberService;
 import roomescape.member.service.dto.command.MemberCreateCommand;
 import roomescape.member.service.dto.result.MemberResult;
@@ -29,6 +30,7 @@ public class DataInitializer implements ApplicationRunner {
     private final ReservationTimeService reservationTimeService;
     private final ThemeService themeService;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -46,6 +48,8 @@ public class DataInitializer implements ApplicationRunner {
                 .password("1007")
                 .role(Role.ADMIN)
                 .build();
+
+        memberRepository.save(admin);
 
         ReservationTimeCreateCommand time = ReservationTimeCreateCommand.builder()
                 .startAt(LocalTime.of(10, 0))
@@ -82,9 +86,9 @@ public class DataInitializer implements ApplicationRunner {
         ReservationTimeResponse savedReservationTime = reservationTimeService.save(time);
         ReservationTimeResponse savedReservationTime2 = reservationTimeService.save(time2);
         ReservationTimeResponse savedReservationTime3 = reservationTimeService.save(time3);
-        ThemeResponse savedTheme = themeService.save(theme);
-        ThemeResponse savedTheme2 = themeService.save(theme2);
-        ThemeResponse savedTheme3 = themeService.save(theme3);
+        ThemeResponse savedTheme = ThemeResponse.from(themeService.save(theme));
+        ThemeResponse savedTheme2 = ThemeResponse.from(themeService.save(theme2));
+        ThemeResponse savedTheme3 = ThemeResponse.from(themeService.save(theme3));
 
         ReservationCreateCommand reservation = ReservationCreateCommand.builder()
                 .memberId(savedMember.id())

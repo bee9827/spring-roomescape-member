@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/members")
 @RequiredArgsConstructor
-public class AdminApiController {
+public class AdminMemberApiController {
     private final MemberService memberService;
 
     @GetMapping
