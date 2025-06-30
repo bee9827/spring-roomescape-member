@@ -12,9 +12,9 @@ public enum AuthErrorStatus implements ErrorStatus {
     NOT_FOUND_COOKIE(HttpStatus.BAD_REQUEST, "AUTH_004", "쿠키가 존재하지 않습니다."),
     NOT_AUTHORIZED(HttpStatus.UNAUTHORIZED,"AUTH_005","권한이 없습니다."),
 ;
-    private HttpStatus httpStatus;
-    private String code;
-    private String message;
+    private final HttpStatus httpStatus;
+    private final String code;
+    private final String message;
 
     AuthErrorStatus(HttpStatus httpStatus, String code, String message) {
         this.httpStatus = httpStatus;

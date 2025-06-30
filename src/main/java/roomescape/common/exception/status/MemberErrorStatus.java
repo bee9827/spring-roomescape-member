@@ -11,9 +11,9 @@ public enum MemberErrorStatus implements ErrorStatus {
     INVALID_NAME_LENGTH(HttpStatus.BAD_REQUEST,"MEMBER_004","이름의 길이가 맞지 않습니다."),
 
     ;
-    private HttpStatus httpStatus;
-    private String code;
-    private String message;
+    private final HttpStatus httpStatus;
+    private final String code;
+    private final String message;
 
     MemberErrorStatus(HttpStatus httpStatus, String code, String message) {
         this.httpStatus = httpStatus;
