@@ -9,6 +9,7 @@ import roomescape.theme.controller.dto.ThemeResponse;
 import roomescape.theme.domain.Theme;
 import roomescape.theme.repository.ThemeRepository;
 import roomescape.theme.service.dto.command.ThemeCreateCommand;
+import roomescape.theme.service.dto.result.PopularThemeResult;
 
 import java.util.List;
 
@@ -58,5 +59,9 @@ public class ThemeService {
         if (reservationRepository.existsByThemeId(id)) {
             throw new RestApiException(ThemeErrorStatus.RESERVATION_EXIST);
         }
+    }
+
+    public List<PopularThemeResult> getPopularThemes() {
+        return themeRepository.findPopularThemes();
     }
 }
