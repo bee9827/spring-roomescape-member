@@ -1,7 +1,7 @@
 package roomescape.common.util;
 
 import jakarta.servlet.http.Cookie;
-import roomescape.auth.TokenProvider;
+import roomescape.common.TokenProvider;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.AuthErrorStatus;
 

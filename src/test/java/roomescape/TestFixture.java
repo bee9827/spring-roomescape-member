@@ -1,8 +1,8 @@
 package roomescape;
 
 import org.springframework.stereotype.Component;
-import roomescape.reservationTime.service.dto.command.ReservationTimeCreateCommand;
-import roomescape.theme.service.dto.command.ThemeCreateCommand;
+import roomescape.service.dto.command.ReservationTimeCreateCommand;
+import roomescape.service.dto.command.ThemeCreateCommand;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

@@ -5,9 +5,10 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import roomescape.common.TokenProvider;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.AuthErrorStatus;
-import roomescape.member.domain.Role;
+import roomescape.domain.Role;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;

@@ -10,12 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import roomescape.TestFixture;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
-import roomescape.member.repository.MemberRepository;
-import roomescape.reservation.controller.dto.request.ReservationSearchCriteria;
-import roomescape.reservation.service.dto.command.ReservationCreateCommand;
-import roomescape.reservation.service.dto.result.ReservationResult;
-import roomescape.reservationTime.repository.ReservationTimeRepository;
-import roomescape.theme.repository.ThemeRepository;
+import roomescape.repository.MemberRepository;
+import roomescape.controller.dto.request.ReservationSearchCriteria;
+import roomescape.service.ReservationService;
+import roomescape.service.dto.command.ReservationCreateCommand;
+import roomescape.service.dto.result.ReservationResult;
+import roomescape.repository.ReservationTimeRepository;
+import roomescape.repository.ThemeRepository;
 
 import java.util.List;
 
@@ -120,6 +121,21 @@ class ReservationServiceTest {
             assertThatThrownBy(() -> reservationService.save(reservationCreateCommand))
                     .isInstanceOf(RestApiException.class)
                     .hasMessage(ReservationErrorStatus.MEMBER_NOT_FOUND.getMessage());
+        }
+
+        @Test
+        @DisplayName("예외: 중복 이면 예외를 발생 시킨다.")
+        void validate() {
+            ReservationCreateCommand reservationCreateCommand = ReservationCreateCommand.builder()
+                    .memberId(1L)
+                    .themeId(1L)
+                    .reservationTimeId(1L)
+                    .date(TestFixture.DEFAULT_DATE)
+                    .build();
+
+            assertThatThrownBy(() -> reservationService.save(reservationCreateCommand))
+                    .isInstanceOf(RestApiException.class)
+                    .hasMessage(ReservationErrorStatus.DUPLICATE.getMessage());
         }
     }
 

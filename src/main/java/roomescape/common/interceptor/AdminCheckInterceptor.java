@@ -6,11 +6,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import roomescape.auth.TokenProvider;
+import roomescape.common.TokenProvider;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.AuthErrorStatus;
 import roomescape.common.util.CookieUtil;
-import roomescape.member.domain.Role;
+import roomescape.domain.Role;
 
 @Component
 @RequiredArgsConstructor

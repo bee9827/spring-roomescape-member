@@ -4,9 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
-import roomescape.member.domain.Member;
-import roomescape.member.domain.Role;
-import roomescape.reservationTime.domain.ReservationTime;
+import roomescape.domain.Member;
+import roomescape.domain.Reservation;
+import roomescape.domain.ReservationTime;
+import roomescape.domain.Role;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

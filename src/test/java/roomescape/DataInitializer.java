@@ -5,19 +5,18 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import roomescape.member.domain.Member;
-import roomescape.member.domain.Role;
-import roomescape.member.service.MemberService;
-import roomescape.member.service.dto.command.MemberCreateCommand;
-import roomescape.member.service.dto.result.MemberResult;
-import roomescape.reservation.service.ReservationService;
-import roomescape.reservation.service.dto.command.ReservationCreateCommand;
-import roomescape.reservationTime.controller.dto.response.ReservationTimeResponse;
-import roomescape.reservationTime.service.ReservationTimeService;
-import roomescape.theme.controller.dto.ThemeResponse;
-import roomescape.theme.service.ThemeService;
+import roomescape.domain.Member;
+import roomescape.domain.Role;
+import roomescape.service.MemberService;
+import roomescape.service.dto.command.MemberCreateCommand;
+import roomescape.service.dto.result.MemberResult;
+import roomescape.service.ReservationService;
+import roomescape.service.dto.command.ReservationCreateCommand;
+import roomescape.controller.dto.response.ReservationTimeResponse;
+import roomescape.service.ReservationTimeService;
+import roomescape.service.ThemeService;
+import roomescape.service.dto.result.ThemeResult;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,10 +45,10 @@ public class DataInitializer implements ApplicationRunner {
                 .role(Role.ADMIN)
                 .build();
 
-        MemberResult savedMember = memberService.save(member);
+        MemberResult memberResult = memberService.save(member);
 
         List<ReservationTimeResponse> reservationTimeResponses = new ArrayList<>();
-        List<ThemeResponse> themeResponses = new ArrayList<>();
+        List<ThemeResult> themeResults = new ArrayList<>();
 
         TestFixture.createReservationTimeCommands()
                 .forEach(command -> {
@@ -57,14 +56,14 @@ public class DataInitializer implements ApplicationRunner {
                 });
         TestFixture.createThemeCommands()
                 .forEach(command -> {
-                    themeResponses.add(themeService.save(command));
+                    themeResults.add(themeService.save(command));
                 });
 
         for (int i = 0; i < 3; i++) {
             reservationService.save(
                     ReservationCreateCommand.builder()
-                            .memberId(savedMember.id())
-                            .themeId(themeResponses.get(i).id())
+                            .memberId(memberResult.id())
+                            .themeId(themeResults.get(i).id())
                             .reservationTimeId(reservationTimeResponses.get(i).id())
                             .date(TestFixture.DEFAULT_DATE)
                             .build());
