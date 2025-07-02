@@ -39,12 +39,6 @@ public class ReservationService {
         return ReservationResult.from(save(createRequest));
     }
 
-    public ReservationResult findById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.NOT_FOUND));
-        return ReservationResult.from(reservation);
-    }
-
     public List<ReservationResult> findAll() {
         return reservationRepository.findAll()
                 .stream()
@@ -53,11 +47,8 @@ public class ReservationService {
     }
 
     public void deleteById(Long id) {
-        if (!reservationRepository.existsById(id)) {
-            throw new RestApiException(ReservationErrorStatus.NOT_FOUND);
-        }
-
-        reservationRepository.deleteById(id);
+        Reservation reservation = findById(id);
+        reservationRepository.delete(reservation);
     }
 
     public List<ReservationResult> searchByCriteria(ReservationSearchCriteria reservationSearchCriteria) {
@@ -80,6 +71,12 @@ public class ReservationService {
         validate(reservation);
 
         return reservationRepository.save(reservation);
+    }
+
+
+    private Reservation findById(Long id) {
+        return reservationRepository.findById(id)
+                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.NOT_FOUND));
     }
 
     public void validate(Reservation reservation) {

@@ -1,22 +1,29 @@
 package roomescape.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import roomescape.DatabaseCleaner;
 import roomescape.TestFixture;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.controller.dto.request.ReservationSearchCriteria;
+import roomescape.domain.Member;
+import roomescape.domain.Reservation;
+import roomescape.domain.ReservationTime;
+import roomescape.domain.Theme;
 import roomescape.repository.MemberRepository;
+import roomescape.repository.ReservationRepository;
 import roomescape.repository.ReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
 import roomescape.service.dto.command.ReservationCreateCommand;
 import roomescape.service.dto.result.ReservationResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,14 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
 @Transactional
-@ActiveProfiles("test")
 class ReservationServiceTest {
-    ReservationCreateCommand reservationCreateCommand = ReservationCreateCommand.builder()
-            .date(TestFixture.DEFAULT_DATE.plusDays(1))
-            .memberId(1L)
-            .themeId(1L)
-            .reservationTimeId(1L)
-            .build();
     @Autowired
     private ReservationService reservationService;
     @Autowired
@@ -41,10 +41,51 @@ class ReservationServiceTest {
     private MemberRepository memberRepository;
     @Autowired
     private ThemeRepository themeRepository;
+    @Autowired
+    private ReservationRepository reservationRepository;
+    @Autowired
+    private DatabaseCleaner databaseCleaner;
+
+    @BeforeEach
+    public void setUp() {
+        databaseCleaner.clean();
+
+        Member member = Member.builder()
+                .name("용성")
+                .email("ehfrhfo9494@naver.com")
+                .password("1007")
+                .build();
+
+        memberRepository.save(member);
+
+        List<ReservationTime> reservationTimeResponses = new ArrayList<>();
+        List<Theme> themeResults = new ArrayList<>();
+
+        TestFixture.getReservationTimeCommands()
+                .forEach(command -> {
+                    reservationTimeResponses.add(reservationTimeRepository.save(command.toEntity()));
+                });
+        TestFixture.getThemesCreateCommand()
+                .forEach(command -> {
+                    themeResults.add(themeRepository.save(command.toEntity()));
+                });
+
+        for (int i = 0; i < 3; i++) {
+            reservationService.save(
+                    ReservationCreateCommand.builder()
+                            .memberId(member.getId())
+                            .themeId(themeResults.get(i).getId())
+                            .reservationTimeId(reservationTimeResponses.get(i).getId())
+                            .date(TestFixture.DEFAULT_DATE)
+                            .build());
+        }
+
+    }
 
     @Nested
     @DisplayName("필터링 검색")
     class SearchByCriteria {
+
         @Test
         @DisplayName("조건이 없을때 모든 목록을 반환 한다.")
         void NoCriteria() {
@@ -83,6 +124,12 @@ class ReservationServiceTest {
     @Nested
     @DisplayName("저장")
     class Save {
+        ReservationCreateCommand reservationCreateCommand = ReservationCreateCommand.builder()
+                .date(TestFixture.DEFAULT_DATE.plusDays(1))
+                .memberId(1L)
+                .themeId(1L)
+                .reservationTimeId(1L)
+                .build();
 
         @Test
         @DisplayName("CreateCommand: 저장에 성공한다.")
@@ -125,12 +172,7 @@ class ReservationServiceTest {
         @Test
         @DisplayName("예외: 중복 이면 예외를 발생 시킨다.")
         void validate() {
-            ReservationCreateCommand reservationCreateCommand = ReservationCreateCommand.builder()
-                    .memberId(1L)
-                    .themeId(1L)
-                    .reservationTimeId(1L)
-                    .date(TestFixture.DEFAULT_DATE)
-                    .build();
+            reservationService.save(reservationCreateCommand);
 
             assertThatThrownBy(() -> reservationService.save(reservationCreateCommand))
                     .isInstanceOf(RestApiException.class)
@@ -139,23 +181,18 @@ class ReservationServiceTest {
     }
 
     @Nested
-    @DisplayName("조회")
-    class FindById {
+    @DisplayName("findAll: ")
+    class FindAll {
         @Test
-        @DisplayName("단일 조회에 성공한다")
-        void findById() {
-            ReservationResult savedReservation = reservationService.findById(1L);
+        @DisplayName("성공하면 ReservtaionResult를 반환한다.")
+        public void success(){
+            List<ReservationResult> reservationResults = reservationService.findAll();
 
-            assertThat(savedReservation).isNotNull();
+            List<Reservation> saved = reservationRepository.findAll();
+
+            assertThat(reservationResults).hasSize(saved.size());
         }
 
-        @Test
-        @DisplayName("예외: 없는 아이디 라면 예외를 던진다.")
-        void findByIdNotFound() {
-            assertThatThrownBy(() -> reservationService.findById(0L))
-                    .isInstanceOf(RestApiException.class)
-                    .hasMessage(ReservationErrorStatus.NOT_FOUND.getMessage());
-        }
     }
 
     @Nested
@@ -164,11 +201,11 @@ class ReservationServiceTest {
         @Test
         @DisplayName("성공한다")
         void success() {
-            reservationService.deleteById(1L);
-            assertThatThrownBy(() -> reservationService.findById(1L))
-                    .isInstanceOf(RestApiException.class)
-                    .hasMessage(ReservationErrorStatus.NOT_FOUND.getMessage());
+            Reservation reservation = reservationRepository.findAll().getFirst();
+            reservationService.deleteById(reservation.getId());
 
+            assertThat(reservationRepository.existsById(reservation.getId()))
+                    .isFalse();
         }
 
         @Test

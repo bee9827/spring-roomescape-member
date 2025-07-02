@@ -8,6 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+import roomescape.DatabaseCleaner;
 import roomescape.TestFixture;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationTimeErrorStatus;
@@ -26,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
+@Transactional
 class ReservationTimeServiceTest {
     @Autowired
     private ReservationTimeService reservationTimeService;
@@ -33,11 +36,12 @@ class ReservationTimeServiceTest {
     private ReservationRepository reservationRepository;
     @Autowired
     private ReservationTimeRepository reservationTimeRepository;
+    @Autowired
+    private DatabaseCleaner databaseCleaner;
 
     @BeforeEach
     void setUp() throws Exception {
-        reservationRepository.deleteAll();
-        reservationTimeRepository.deleteAll();
+        databaseCleaner.clean();
 
         List<ReservationTime> list = TestFixture.getReservationTimeCommands()
                 .stream()
@@ -49,12 +53,12 @@ class ReservationTimeServiceTest {
 
     @ParameterizedTest
     @CsvSource({"1", "2", "3"})
-    @DisplayName("findAvailable: 예약된 타임 슬롯은 booked = true 만들어 슬롯 전체를 리턴 한다.")
+    @DisplayName("findAvailable: 예약된 타임 슬롯은 booked = true 만들어, 슬롯 전체를 리턴 한다.")
     void findAvailable(Long themeId) {
         List<AvailableReservationTimeResult> availableReservationTimeResults = reservationTimeService.findAvailable(themeId, TestFixture.DEFAULT_DATE);
 
         List<ReservationTimeResult> bookedAvailableTIme = availableReservationTimeResults
-                .stream()       //if) 예약이 이미 되어 있다면 booked = true, 모든 시간을 리턴;
+                .stream()
                 .filter(AvailableReservationTimeResult::booked)
                 .map(AvailableReservationTimeResult::reservationTimeResult)
                 .toList();

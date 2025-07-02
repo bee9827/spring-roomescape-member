@@ -41,11 +41,10 @@ public class ReservationTimeService {
         reservationTimeRepository.delete(findById(id));
     }
 
-    public ReservationTime findById(Long id) {
+    private ReservationTime findById(Long id) {
         return reservationTimeRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(ReservationTimeErrorStatus.NOT_FOUND));
     }
-
 
     private void validateReservationExists(Long id) {
         if (reservationRepository.existsByReservationTimeId(id))
