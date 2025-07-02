@@ -83,9 +83,9 @@ public class DataInitializer implements ApplicationRunner {
 
         MemberResult savedMember = memberService.save(member);
 
-        ReservationTimeResponse savedReservationTime = reservationTimeService.save(time);
-        ReservationTimeResponse savedReservationTime2 = reservationTimeService.save(time2);
-        ReservationTimeResponse savedReservationTime3 = reservationTimeService.save(time3);
+        ReservationTimeResponse savedReservationTime = ReservationTimeResponse.from(reservationTimeService.save(time));
+        ReservationTimeResponse savedReservationTime2 = ReservationTimeResponse.from(reservationTimeService.save(time2));
+        ReservationTimeResponse savedReservationTime3 = ReservationTimeResponse.from(reservationTimeService.save(time3));
         ThemeResponse savedTheme = ThemeResponse.from(themeService.save(theme));
         ThemeResponse savedTheme2 = ThemeResponse.from(themeService.save(theme2));
         ThemeResponse savedTheme3 = ThemeResponse.from(themeService.save(theme3));

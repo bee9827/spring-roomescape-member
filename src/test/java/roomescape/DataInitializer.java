@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 import roomescape.domain.Member;
 import roomescape.domain.Role;
 import roomescape.service.MemberService;
-import roomescape.service.dto.command.MemberCreateCommand;
-import roomescape.service.dto.result.MemberResult;
 import roomescape.service.ReservationService;
-import roomescape.service.dto.command.ReservationCreateCommand;
-import roomescape.controller.dto.response.ReservationTimeResponse;
 import roomescape.service.ReservationTimeService;
 import roomescape.service.ThemeService;
+import roomescape.service.dto.command.MemberCreateCommand;
+import roomescape.service.dto.command.ReservationCreateCommand;
+import roomescape.service.dto.result.MemberResult;
+import roomescape.service.dto.result.ReservationTimeResult;
 import roomescape.service.dto.result.ThemeResult;
 
 import java.util.ArrayList;
@@ -47,14 +47,14 @@ public class DataInitializer implements ApplicationRunner {
 
         MemberResult memberResult = memberService.save(member);
 
-        List<ReservationTimeResponse> reservationTimeResponses = new ArrayList<>();
+        List<ReservationTimeResult> reservationTimeResponses = new ArrayList<>();
         List<ThemeResult> themeResults = new ArrayList<>();
 
-        TestFixture.createReservationTimeCommands()
+        TestFixture.getReservationTimeCommands()
                 .forEach(command -> {
                     reservationTimeResponses.add(reservationTimeService.save(command));
                 });
-        TestFixture.createThemeCommands()
+        TestFixture.getThemesCreateCommand()
                 .forEach(command -> {
                     themeResults.add(themeService.save(command));
                 });

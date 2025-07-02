@@ -23,7 +23,10 @@ public class ReservationTimeController {
             @RequestParam final Long themeId,
             @RequestParam final LocalDate date
     ) {
-        List<AvailableTimeResponse> availableTimeResponses = reservationTimeService.findAvailable(themeId, date);
+        List<AvailableTimeResponse> availableTimeResponses = reservationTimeService.findAvailable(themeId, date)
+                .stream()
+                .map(AvailableTimeResponse::from)
+                .toList();
 
         return ResponseEntity.ok(availableTimeResponses);
     }

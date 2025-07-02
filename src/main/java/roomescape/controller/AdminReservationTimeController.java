@@ -25,13 +25,17 @@ public class AdminReservationTimeController {
             @RequestBody
             @Valid
             ReservationTimeCreateRequest reservationTimeCreateRequest) {
-        ReservationTimeResponse responseDto = reservationTimeService.save(reservationTimeCreateRequest.toCommand());
+        ReservationTimeResponse responseDto = ReservationTimeResponse.from(reservationTimeService.save(reservationTimeCreateRequest.toCommand()));
         return ResponseEntity.created(URI.create("/times")).body(responseDto);
     }
 
     @GetMapping
     public ResponseEntity<List<ReservationTimeResponse>> findAll() {
-        return ResponseEntity.ok(reservationTimeService.findAll());
+        List<ReservationTimeResponse> reservationTimeResponses = reservationTimeService.findAll()
+                .stream()
+                .map(ReservationTimeResponse::from)
+                .toList();
+        return ResponseEntity.ok(reservationTimeResponses);
     }
 
     @DeleteMapping("/{id}")
