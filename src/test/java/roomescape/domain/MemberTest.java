@@ -1,4 +1,4 @@
-package roomescape.member.domain;
+package roomescape.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -6,8 +6,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.MemberErrorStatus;
-import roomescape.domain.Member;
-import roomescape.domain.Role;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

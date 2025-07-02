@@ -1,4 +1,4 @@
-package roomescape.reservation.service;
+package roomescape.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,13 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import roomescape.TestFixture;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
-import roomescape.repository.MemberRepository;
 import roomescape.controller.dto.request.ReservationSearchCriteria;
-import roomescape.service.ReservationService;
-import roomescape.service.dto.command.ReservationCreateCommand;
-import roomescape.service.dto.result.ReservationResult;
+import roomescape.repository.MemberRepository;
 import roomescape.repository.ReservationTimeRepository;
 import roomescape.repository.ThemeRepository;
+import roomescape.service.dto.command.ReservationCreateCommand;
+import roomescape.service.dto.result.ReservationResult;
 
 import java.util.List;
 
