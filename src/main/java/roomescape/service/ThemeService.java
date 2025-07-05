@@ -38,19 +38,24 @@ public class ThemeService {
         return ThemeResult.from(theme);
     }
 
-    public Theme save(Theme theme) {
-        return themeRepository.save(theme);
-    }
-
     public List<PopularThemeResult> getPopularThemes() {
         return themeRepository.findPopularThemes();
     }
 
     public void deleteById(Long id) {
-        validateThemeExists(id);
         validateReservationExists(id);
 
-        themeRepository.deleteById(id);
+        Theme savedTheme = getById(id);
+        themeRepository.delete(savedTheme);
+    }
+
+    private Theme save(Theme theme) {
+        return themeRepository.save(theme);
+    }
+
+    private Theme getById(Long id) {
+        return themeRepository.findById(id)
+                .orElseThrow(() -> new RestApiException(ThemeErrorStatus.NOT_FOUND));
     }
 
     private void validateThemeExists(Long id) {
