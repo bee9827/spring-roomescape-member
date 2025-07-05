@@ -1,7 +1,9 @@
 package roomescape;
 
-import roomescape.service.dto.command.ReservationTimeCreateCommand;
+import lombok.Getter;
+import roomescape.service.dto.command.MemberCreateCommand;
 import roomescape.service.dto.command.ThemeCreateCommand;
+import roomescape.service.dto.command.TimeSlotCreateCommand;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,18 +12,24 @@ import java.util.List;
 
 public class TestFixture {
     public static final LocalDate DEFAULT_DATE = LocalDate.now().plusDays(1);
-    private static final List<ThemeCreateCommand> themes = initTheme();
-    private static final List<ReservationTimeCreateCommand> reservationTimes = initReservationTimes();
 
-    public static List<ThemeCreateCommand> getThemesCreateCommand() {
-        return themes;
+    @Getter
+    private static final List<ThemeCreateCommand> themeCreateCommands = initThemes();
+    @Getter
+    private static final List<TimeSlotCreateCommand> timeSlotCreateCommands = initTimeSlotCommands();
+    @Getter
+    private static final MemberCreateCommand memberCreateCommand = initMemberCommand();
+
+    private static MemberCreateCommand initMemberCommand() {
+        return MemberCreateCommand.builder()
+                .name("테스트 사용자")
+                .password("1007")
+                .email("test@email.com")
+                .build();
     }
 
-    public static List<ReservationTimeCreateCommand> getReservationTimeCommands() {
-        return reservationTimes;
-    }
 
-    private static List<ThemeCreateCommand> initTheme() {
+    private static List<ThemeCreateCommand> initThemes() {
         List<ThemeCreateCommand> themes = new ArrayList<>();
 
         themes.add(ThemeCreateCommand.builder()
@@ -42,16 +50,16 @@ public class TestFixture {
         return themes;
     }
 
-    private static List<ReservationTimeCreateCommand> initReservationTimes() {
-        List<ReservationTimeCreateCommand> reservationTimes = new ArrayList<>();
+    private static List<TimeSlotCreateCommand> initTimeSlotCommands() {
+        List<TimeSlotCreateCommand> reservationTimes = new ArrayList<>();
 
-        reservationTimes.add(ReservationTimeCreateCommand.builder()
+        reservationTimes.add(TimeSlotCreateCommand.builder()
                 .startAt(LocalTime.of(10, 0))
                 .build());
-        reservationTimes.add(ReservationTimeCreateCommand.builder()
+        reservationTimes.add(TimeSlotCreateCommand.builder()
                 .startAt(LocalTime.of(13, 0))
                 .build());
-        reservationTimes.add(ReservationTimeCreateCommand.builder()
+        reservationTimes.add(TimeSlotCreateCommand.builder()
                 .startAt(LocalTime.of(16, 0))
                 .build());
         return reservationTimes;

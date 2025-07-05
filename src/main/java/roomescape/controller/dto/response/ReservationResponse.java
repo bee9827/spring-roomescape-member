@@ -26,7 +26,7 @@ public record ReservationResponse(
                 reservation.memberResult().name(),
                 reservation.themeResult().name(),
                 reservation.date(),
-                reservation.reservationTimeResult().startAt()
+                reservation.timeSlotResult().startAt()
         );
     }
 }

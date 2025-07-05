@@ -17,14 +17,14 @@ public record ReservationCreateRequestForMember(
 
         @NotNull(message = "시간 Id는 공백일 수 없습니다.")
         @JsonProperty("timeId")
-        Long reservationTimeId
+        Long timeSlotId
 ) {
     public ReservationCreateCommand toCommand(final Long memberId) {
         return ReservationCreateCommand.builder()
                 .memberId(memberId)
                 .date(date)
                 .themeId(themeId)
-                .reservationTimeId(reservationTimeId)
+                .timeSlotId(timeSlotId)
                 .build();
     }
 }

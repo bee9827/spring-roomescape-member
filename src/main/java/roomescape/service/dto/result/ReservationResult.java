@@ -10,14 +10,14 @@ public record ReservationResult(
         Long id,
         MemberResult memberResult,
         ThemeResult themeResult,
-        ReservationTimeResult reservationTimeResult,
+        TimeSlotResult timeSlotResult,
         LocalDate date
 ) {
     public static ReservationResult from(Reservation reservation) {
         return ReservationResult.builder()
                 .memberResult(MemberResult.from(reservation.getMember()))
                 .themeResult(ThemeResult.from(reservation.getTheme()))
-                .reservationTimeResult(ReservationTimeResult.from(reservation.getReservationTime()))
+                .timeSlotResult(TimeSlotResult.from(reservation.getTimeSlot()))
                 .date(reservation.getDate())
                 .build();
     }

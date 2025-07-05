@@ -7,7 +7,7 @@ import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
 import roomescape.domain.Member;
 import roomescape.domain.Reservation;
-import roomescape.domain.ReservationTime;
+import roomescape.domain.TimeSlot;
 import roomescape.domain.Theme;
 
 import java.time.LocalDate;
@@ -26,14 +26,14 @@ public record ReservationCreateCommand(
 
         @NotNull(message = "시간 Id는 공백일 수 없습니다.")
         @JsonProperty("timeId")
-        Long reservationTimeId
+        Long timeSlotId
 ) {
-    public Reservation toEntity(Member member, Theme theme, ReservationTime reservationTime) {
+    public Reservation toEntity(Member member, Theme theme, TimeSlot timeSlot) {
         return Reservation.builder()
                 .member(member)
                 .date(date)
                 .theme(theme)
-                .reservationTime(reservationTime)
+                .timeSlot(timeSlot)
                 .build();
     }
 }

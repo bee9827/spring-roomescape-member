@@ -7,11 +7,11 @@ import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.controller.dto.request.ReservationSearchCriteria;
 import roomescape.domain.Member;
 import roomescape.domain.Reservation;
-import roomescape.domain.ReservationTime;
+import roomescape.domain.TimeSlot;
 import roomescape.domain.Theme;
 import roomescape.repository.MemberRepository;
 import roomescape.repository.ReservationRepository;
-import roomescape.repository.ReservationTimeRepository;
+import roomescape.repository.TimeSlotRepository;
 import roomescape.repository.ThemeRepository;
 import roomescape.service.dto.command.ReservationCreateCommand;
 import roomescape.service.dto.result.ReservationResult;
@@ -22,15 +22,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationService {
     private final ReservationRepository reservationRepository;
-    private final ReservationTimeRepository reservationTimeRepository;
+    private final TimeSlotRepository timeSlotRepository;
     private final ThemeRepository themeRepository;
     private final MemberRepository memberRepository;
 
     public ReservationResult save(ReservationCreateCommand reservationCreateCommand) {
         Member member = memberRepository.findById(reservationCreateCommand.memberId())
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.MEMBER_NOT_FOUND));
-        ReservationTime time = reservationTimeRepository.findById(reservationCreateCommand.reservationTimeId())
-                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.TIME_NOT_FOUND));
+        TimeSlot time = timeSlotRepository.findById(reservationCreateCommand.timeSlotId())
+                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.TIME_SLOT_NOT_FOUND));
         Theme theme = themeRepository.findById(reservationCreateCommand.themeId())
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.THEME_NOT_FOUND));
 
@@ -84,7 +84,7 @@ public class ReservationService {
     }
 
     private void validateDuplicate(Reservation reservation) {
-        if (reservationRepository.isDuplicated(reservation.getTheme(), reservation.getDate(), reservation.getReservationTime()))
+        if (reservationRepository.isDuplicated(reservation.getTheme(), reservation.getDate(), reservation.getTimeSlot()))
             throw new RestApiException(ReservationErrorStatus.DUPLICATE);
     }
 }

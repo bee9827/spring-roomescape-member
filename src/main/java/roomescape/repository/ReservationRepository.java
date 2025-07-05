@@ -3,7 +3,7 @@ package roomescape.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import roomescape.domain.Reservation;
-import roomescape.domain.ReservationTime;
+import roomescape.domain.TimeSlot;
 import roomescape.domain.Theme;
 
 import java.time.LocalDate;
@@ -12,11 +12,11 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     boolean existsByThemeId(Long id);
 
-    boolean existsByReservationTimeId(Long id);
+    boolean existsByTimeSlotId(Long id);
 
     @Query("""
             SELECT r FROM Reservation r
-            JOIN FETCH r.reservationTime
+            JOIN FETCH r.timeSlot
             JOIN FETCH r.theme
             """)
     List<Reservation> findAll();
@@ -26,10 +26,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                 SELECT 1 FROM Reservation r
                 WHERE r.theme = :theme
                 AND r.date = :date
-                AND r.reservationTime = :reservationTime
+                AND r.timeSlot = :timeSlot
             )
             """)
-    boolean isDuplicated(Theme theme, LocalDate date, ReservationTime reservationTime);
+    boolean isDuplicated(Theme theme, LocalDate date, TimeSlot timeSlot);
 
     @Query("""
             SELECT r FROM Reservation r

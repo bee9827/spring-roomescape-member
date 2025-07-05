@@ -14,7 +14,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
-public class ReservationTime {
+public class TimeSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,7 +23,7 @@ public class ReservationTime {
     private LocalTime startAt;
 
     @Builder
-    public ReservationTime(LocalTime startAt) {
+    public TimeSlot(LocalTime startAt) {
         this.startAt = startAt;
     }
 

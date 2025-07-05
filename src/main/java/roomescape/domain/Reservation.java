@@ -15,14 +15,14 @@ import java.time.LocalTime;
 import static lombok.AccessLevel.PROTECTED;
 
 
-@Entity(name = "Reservation")
+@Entity
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "RESERVATION_DATE",
                         columnNames = {
                                 "date",
-                                "reservation_time_id",
+                                "time_slot_id",
                                 "theme_id"
                         })
         }
@@ -41,18 +41,18 @@ public class Reservation {
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private ReservationTime reservationTime;
+    private TimeSlot timeSlot;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theme_id")
     private Theme theme;
 
     @Builder
-    public Reservation(Member member, LocalDate date, ReservationTime reservationTime, Theme theme) {
-        validatePast(date, reservationTime.getStartAt());
+    public Reservation(Member member, LocalDate date, TimeSlot timeSlot, Theme theme) {
+        validatePast(date, timeSlot.getStartAt());
         this.member = member;
         this.date = date;
-        this.reservationTime = reservationTime;
+        this.timeSlot = timeSlot;
         this.theme = theme;
     }
 

@@ -13,7 +13,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Long> {
     @Query("""
             SELECT new roomescape.service.dto.result.PopularThemeResult(t, COUNT(r))
             FROM Theme AS t
-            LEFT JOIN Reservation AS r
+            INNER JOIN Reservation AS r
             ON t = r.theme
             GROUP BY t
             ORDER BY COUNT(r) DESC

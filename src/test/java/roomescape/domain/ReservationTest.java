@@ -4,10 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
-import roomescape.domain.Member;
-import roomescape.domain.Reservation;
-import roomescape.domain.ReservationTime;
-import roomescape.domain.Role;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,7 +15,7 @@ class ReservationTest {
     @Test
     @DisplayName("PAST 예외: 지난 시간에 대한 Reservation 생성은 불가능 하다.")
     public void presentOrFuture() {
-        ReservationTime reservationTime = new ReservationTime(LocalTime.now());
+        TimeSlot timeSlot = new TimeSlot(LocalTime.now());
         Member member = Member.builder()
                 .name("테스트")
                 .password("1007")
@@ -31,7 +27,7 @@ class ReservationTest {
                 () -> Reservation.builder()
                         .member(member)
                         .date(LocalDate.now())
-                        .reservationTime(reservationTime)
+                        .timeSlot(timeSlot)
                         .build())
                 .isInstanceOf(RestApiException.class)
                 .hasMessage(ReservationErrorStatus.INVALID_DATE_TIME.getMessage());

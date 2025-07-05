@@ -2,7 +2,7 @@ package roomescape.controller.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
-import roomescape.service.dto.result.AvailableReservationTimeResult;
+import roomescape.service.dto.result.AvailableTimeSlotResult;
 
 import java.time.LocalTime;
 
@@ -13,11 +13,11 @@ public record AvailableTimeResponse(
         LocalTime startAt,
         Boolean booked
 ) {
-    public static AvailableTimeResponse from(AvailableReservationTimeResult availableReservationTimeResult) {
+    public static AvailableTimeResponse from(AvailableTimeSlotResult availableTimeSlotResult) {
         return AvailableTimeResponse.builder()
-                .timeId(availableReservationTimeResult.reservationTimeResult().id())
-                .startAt(availableReservationTimeResult.reservationTimeResult().startAt())
-                .booked(availableReservationTimeResult.booked())
+                .timeId(availableTimeSlotResult.timeSlotResult().id())
+                .startAt(availableTimeSlotResult.timeSlotResult().startAt())
+                .booked(availableTimeSlotResult.booked())
                 .build();
     }
 }

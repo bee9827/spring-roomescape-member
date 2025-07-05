@@ -19,13 +19,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public MemberResult save(MemberCreateCommand createCommand) {
-        Member member = Member.builder()
-                .name(createCommand.name())
-                .email(createCommand.email())
-                .password(createCommand.password())
-                .build();
-
-        return MemberResult.from(save(member));
+        return MemberResult.from(save(createCommand.toEntity()));
     }
 
 //    private void delete(Member entity) {
