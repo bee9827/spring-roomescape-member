@@ -58,12 +58,6 @@ public class ThemeService {
                 .orElseThrow(() -> new RestApiException(ThemeErrorStatus.NOT_FOUND));
     }
 
-    private void validateThemeExists(Long id) {
-        if (!themeRepository.existsById(id)) {
-            throw new RestApiException(ThemeErrorStatus.NOT_FOUND);
-        }
-    }
-
     private void validateReservationExists(Long id) {
         if (reservationRepository.existsByThemeId(id)) {
             throw new RestApiException(ThemeErrorStatus.RESERVATION_EXIST);

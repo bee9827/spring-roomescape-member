@@ -2,14 +2,20 @@ package roomescape.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import roomescape.DataInitializer;
+import roomescape.TestFixture;
+import roomescape.common.exception.RestApiException;
+import roomescape.common.exception.status.ThemeErrorStatus;
 import roomescape.domain.Reservation;
 import roomescape.domain.Theme;
+import roomescape.repository.MemberRepository;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ThemeRepository;
+import roomescape.repository.TimeSlotRepository;
 import roomescape.service.dto.command.ThemeCreateCommand;
 import roomescape.service.dto.result.PopularThemeResult;
 import roomescape.service.dto.result.ThemeResult;
@@ -21,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class ThemeServiceTest {
@@ -34,6 +41,10 @@ class ThemeServiceTest {
     private DataInitializer dataInitializer;
     @Autowired
     private ReservationRepository reservationRepository;
+    @Autowired
+    private TimeSlotRepository timeSlotRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
     @BeforeEach
     public void setUp() {
@@ -103,11 +114,34 @@ class ThemeServiceTest {
         }
     }
 
-    @Test
-    void deleteById() {
-        Theme savedTheme = themeRepository.findAll().getFirst();
-        themeService.deleteById(savedTheme.getId());
 
-        assertThat(themeRepository.existsById(savedTheme.getId())).isFalse();
+    @Nested
+    @DisplayName("deleteById: ")
+    class DeleteById {
+
+        @Test
+        @DisplayName("삭제에 성공한다.")
+        void deleteById() {
+            Theme theme = Theme.builder()
+                    .name("삭제용 테마")
+                    .thumbnail("url.com")
+                    .description("삭제될 예정입니다.")
+                    .build();
+
+            themeRepository.save(theme);
+
+            themeService.deleteById(theme.getId());
+            assertThat(themeRepository.existsById(theme.getId())).isFalse();
+        }
+
+        @Test
+        @DisplayName("예약이 존재한다면 예외를 던진다.")
+        void reservationExistException() {
+            Reservation reservation = reservationRepository.findAll().getFirst();
+
+            assertThatThrownBy(() -> themeService.deleteById(reservation.getTheme().getId()))
+                    .isInstanceOf(RestApiException.class)
+                    .hasMessage(ThemeErrorStatus.RESERVATION_EXIST.getMessage());
+        }
     }
 }
