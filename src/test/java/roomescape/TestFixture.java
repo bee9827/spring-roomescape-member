@@ -18,14 +18,24 @@ public class TestFixture {
     @Getter
     private static final List<TimeSlotCreateCommand> timeSlotCreateCommands = initTimeSlotCommands();
     @Getter
-    private static final MemberCreateCommand memberCreateCommand = initMemberCommand();
+    private static final List<MemberCreateCommand> memberCreateCommand = initMemberCommands();
 
-    private static MemberCreateCommand initMemberCommand() {
-        return MemberCreateCommand.builder()
-                .name("테스트 사용자")
-                .password("1007")
-                .email("test@email.com")
-                .build();
+    private static List<MemberCreateCommand> initMemberCommands() {
+        List<MemberCreateCommand> memberCreateCommands = new ArrayList<>();
+
+        memberCreateCommands.add(MemberCreateCommand.builder()
+                .name("첫번째 사용자")
+                .password("1111")
+                .email("test1@email.com")
+                .build());
+
+        memberCreateCommands.add(MemberCreateCommand.builder()
+                .name("두번째 사용자")
+                .password("2222")
+                .email("test2@email.com")
+                .build());
+
+        return memberCreateCommands;
     }
 
 

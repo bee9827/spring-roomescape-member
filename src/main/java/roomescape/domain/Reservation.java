@@ -19,11 +19,12 @@ import static lombok.AccessLevel.PROTECTED;
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "RESERVATION_DATE",
+                        name = "RESERVATION_DUPLICATE",
                         columnNames = {
+                                "member_id",
+                                "theme_id",
                                 "date",
                                 "time_slot_id",
-                                "theme_id"
                         })
         }
 )
@@ -47,6 +48,9 @@ public class Reservation {
     @JoinColumn(name = "theme_id")
     private Theme theme;
 
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status;
+
     @Builder
     public Reservation(Member member, LocalDate date, TimeSlot timeSlot, Theme theme) {
         validatePast(date, timeSlot.getStartAt());
@@ -54,6 +58,10 @@ public class Reservation {
         this.date = date;
         this.timeSlot = timeSlot;
         this.theme = theme;
+    }
+
+    public void updateStatus(ReservationStatus status) {
+        this.status = status;
     }
 
     public void validatePast(LocalDate date, LocalTime time) throws RestApiException {

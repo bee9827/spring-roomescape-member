@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.TimeSlotErrorStatus;
+import roomescape.domain.TimeSlot;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.TimeSlotRepository;
 import roomescape.service.dto.command.TimeSlotCreateCommand;
@@ -40,7 +41,7 @@ public class TimeSlotService {
         timeSlotRepository.delete(findById(id));
     }
 
-    private roomescape.domain.TimeSlot findById(Long id) {
+    private TimeSlot findById(Long id) {
         return timeSlotRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(TimeSlotErrorStatus.NOT_FOUND));
     }
@@ -50,12 +51,12 @@ public class TimeSlotService {
             throw new RestApiException(TimeSlotErrorStatus.RESERVATION_EXIST);
     }
 
-    private roomescape.domain.TimeSlot save(roomescape.domain.TimeSlot entity) {
+    private TimeSlot save(TimeSlot entity) {
         validateDuplicate(entity);
         return timeSlotRepository.save(entity);
     }
 
-    private void validateDuplicate(roomescape.domain.TimeSlot timeSlot) {
+    private void validateDuplicate(TimeSlot timeSlot) {
         if(timeSlotRepository.existsByStartAt(timeSlot.getStartAt())){
             throw new RestApiException(TimeSlotErrorStatus.DUPLICATE);
         };

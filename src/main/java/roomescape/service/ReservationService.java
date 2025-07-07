@@ -5,14 +5,11 @@ import org.springframework.stereotype.Service;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.controller.dto.request.ReservationSearchCriteria;
-import roomescape.domain.Member;
-import roomescape.domain.Reservation;
-import roomescape.domain.TimeSlot;
-import roomescape.domain.Theme;
+import roomescape.domain.*;
 import roomescape.repository.MemberRepository;
 import roomescape.repository.ReservationRepository;
-import roomescape.repository.TimeSlotRepository;
 import roomescape.repository.ThemeRepository;
+import roomescape.repository.TimeSlotRepository;
 import roomescape.service.dto.command.ReservationCreateCommand;
 import roomescape.service.dto.result.ReservationResult;
 
@@ -27,14 +24,7 @@ public class ReservationService {
     private final MemberRepository memberRepository;
 
     public ReservationResult save(ReservationCreateCommand reservationCreateCommand) {
-        Member member = memberRepository.findById(reservationCreateCommand.memberId())
-                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.MEMBER_NOT_FOUND));
-        TimeSlot time = timeSlotRepository.findById(reservationCreateCommand.timeSlotId())
-                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.TIME_SLOT_NOT_FOUND));
-        Theme theme = themeRepository.findById(reservationCreateCommand.themeId())
-                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.THEME_NOT_FOUND));
-
-        Reservation createRequest = reservationCreateCommand.toEntity(member, theme, time);
+        Reservation createRequest = createReservation(reservationCreateCommand);
 
         return ReservationResult.from(save(createRequest));
     }
@@ -47,7 +37,7 @@ public class ReservationService {
     }
 
     public void deleteById(Long id) {
-        Reservation reservation = findById(id);
+        Reservation reservation = getById(id);
         reservationRepository.delete(reservation);
     }
 
@@ -58,10 +48,33 @@ public class ReservationService {
                 .toList();
     }
 
+    public ReservationResult findById(Long id) {
+        Reservation reservation = getById(id);
+        return ReservationResult.from(reservation);
+    }
+
+    private Reservation createReservation(ReservationCreateCommand reservationCreateCommand) {
+        Member member = memberRepository.findById(reservationCreateCommand.memberId())
+                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.MEMBER_NOT_FOUND));
+        TimeSlot timeSlot = timeSlotRepository.findById(reservationCreateCommand.timeSlotId())
+                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.TIME_SLOT_NOT_FOUND));
+        Theme theme = themeRepository.findById(reservationCreateCommand.themeId())
+                .orElseThrow(() -> new RestApiException(ReservationErrorStatus.THEME_NOT_FOUND));
+
+        Reservation createRequest = reservationCreateCommand.toEntity(member, theme, timeSlot);
+
+        if (bookedReservationExists(createRequest))
+            createRequest.updateStatus(ReservationStatus.WAITING);
+        else
+            createRequest.updateStatus(ReservationStatus.BOOKED);
+
+        return createRequest;
+    }
+
     private List<Reservation> filter(ReservationSearchCriteria filter) {
         return reservationRepository.filter(
-                filter.themeId(),
                 filter.memberId(),
+                filter.themeId(),
                 filter.dateFrom(),
                 filter.dateTo()
         );
@@ -73,18 +86,22 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
+    private boolean bookedReservationExists(Reservation createRequest) {
+        return reservationRepository.existsByDateAndThemeAndTimeSlot(
+                createRequest.getDate(), createRequest.getTheme(), createRequest.getTimeSlot());
+    }
 
-    private Reservation findById(Long id) {
+    private Reservation getById(Long id) {
         return reservationRepository.findById(id)
                 .orElseThrow(() -> new RestApiException(ReservationErrorStatus.NOT_FOUND));
     }
 
-    public void validate(Reservation reservation) {
-        validateDuplicate(reservation);
+    private void validate(Reservation reservation) {
+        if (checkDuplicate(reservation))
+            throw new RestApiException(ReservationErrorStatus.DUPLICATE);
     }
 
-    private void validateDuplicate(Reservation reservation) {
-        if (reservationRepository.isDuplicated(reservation.getTheme(), reservation.getDate(), reservation.getTimeSlot()))
-            throw new RestApiException(ReservationErrorStatus.DUPLICATE);
+    private boolean checkDuplicate(Reservation createRequest) {
+        return reservationRepository.isDuplicated(createRequest.getMember(), createRequest.getTheme(), createRequest.getDate(), createRequest.getTimeSlot());
     }
 }

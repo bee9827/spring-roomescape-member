@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import roomescape.DataInitializer;
-import roomescape.TestFixture;
+import roomescape.TestDataInitializer;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ThemeErrorStatus;
 import roomescape.domain.Reservation;
@@ -38,7 +37,7 @@ class ThemeServiceTest {
     private ThemeRepository themeRepository;
 
     @Autowired
-    private DataInitializer dataInitializer;
+    private TestDataInitializer testDataInitializer;
     @Autowired
     private ReservationRepository reservationRepository;
     @Autowired
@@ -48,7 +47,7 @@ class ThemeServiceTest {
 
     @BeforeEach
     public void setUp() {
-        dataInitializer.setUp();
+        testDataInitializer.setUp();
     }
 
     @Test

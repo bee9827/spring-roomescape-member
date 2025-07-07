@@ -2,9 +2,10 @@ package roomescape.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import roomescape.domain.Member;
 import roomescape.domain.Reservation;
-import roomescape.domain.TimeSlot;
 import roomescape.domain.Theme;
+import roomescape.domain.TimeSlot;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,8 +15,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     boolean existsByTimeSlotId(Long id);
 
+    boolean existsByDateAndThemeAndTimeSlot(LocalDate date, Theme theme, TimeSlot timeSlot);
+
     @Query("""
             SELECT r FROM Reservation r
+            JOIN FETCH r.member
             JOIN FETCH r.timeSlot
             JOIN FETCH r.theme
             """)
@@ -24,23 +28,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("""
             SELECT EXISTS(
                 SELECT 1 FROM Reservation r
-                WHERE r.theme = :theme
+                WHERE r.member = :member 
+                AND r.theme = :theme
                 AND r.date = :date
                 AND r.timeSlot = :timeSlot
             )
             """)
-    boolean isDuplicated(Theme theme, LocalDate date, TimeSlot timeSlot);
+    boolean isDuplicated(Member member, Theme theme, LocalDate date, TimeSlot timeSlot);
 
     @Query("""
-            SELECT r FROM Reservation r
-            where :themeId IS NULL OR r.theme.id = :themeId
-            AND :memberId IS NULL OR r.member.id = :memberId
-            AND(
-                (:dateFrom IS NULL AND :dateTo IS NULL)
-                OR (:dateFrom IS NULL OR r.date <= :dateTo)
-                OR (:dateTo IS NULL OR r.date >= :dateFrom)
-                OR (r.date BETWEEN :dateFrom AND :dateTo)
-            )
+                SELECT r FROM Reservation r
+                JOIN FETCH r.member
+                JOIN FETCH r.theme
+                JOIN FETCH r.timeSlot
+                WHERE (:memberId IS NULL OR r.member.id = :memberId)
+                  AND (:themeId IS NULL OR r.theme.id = :themeId)
+                  AND (
+                    (:dateFrom IS NULL OR r.date >= :dateFrom)
+                    AND (:dateTo IS NULL OR r.date <= :dateTo)
+                  )
             """)
-    List<Reservation> filter(Long themeId, Long memberId, LocalDate dateFrom, LocalDate dateTo);
+    List<Reservation> filter(Long memberId, Long themeId, LocalDate dateFrom, LocalDate dateTo);
+
 }

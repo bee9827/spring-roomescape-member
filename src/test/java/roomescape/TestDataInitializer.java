@@ -10,17 +10,17 @@ import roomescape.repository.MemberRepository;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ThemeRepository;
 import roomescape.repository.TimeSlotRepository;
+import roomescape.service.dto.command.MemberCreateCommand;
 import roomescape.service.dto.command.ThemeCreateCommand;
 import roomescape.service.dto.command.TimeSlotCreateCommand;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static roomescape.TestFixture.DEFAULT_DATE;
 
 @Component
-public class DataInitializer {
+public class TestDataInitializer {
     @Autowired
     private DatabaseCleaner databaseCleaner;
     @Autowired
@@ -46,23 +46,26 @@ public class DataInitializer {
         themeRepository.saveAll(themes);
 
 
-        Member member = TestFixture.getMemberCreateCommand().toEntity();
-        memberRepository.save(member);
+        List<Member> member = TestFixture.getMemberCreateCommand()
+                .stream()
+                .map(MemberCreateCommand::toEntity)
+                .toList();
+        memberRepository.saveAll(member);
 
 
-        List<Reservation> reservations = initReservations(member, themes.getFirst(), timeSlots);
+        List<Reservation> reservations = initReservations(member.getFirst(), themes.getFirst(), timeSlots);
         reservationRepository.saveAll(reservations);
     }
 
     private List<Reservation> initReservations(Member member, Theme theme, List<TimeSlot> timeSlots) {
         List<Reservation> reservations = new ArrayList<>();
 
-        for (int i = 0; i < timeSlots.size(); i++) {
+        for (TimeSlot timeSlot : timeSlots) {
             reservations.add(Reservation.builder()
                     .date(DEFAULT_DATE)
                     .member(member)
                     .theme(theme)
-                    .timeSlot(timeSlots.get(i))
+                    .timeSlot(timeSlot)
                     .build());
         }
         return reservations;

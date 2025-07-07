@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.DataInitializer;
+import roomescape.TestDataInitializer;
 import roomescape.TestFixture;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.TimeSlotErrorStatus;
@@ -36,11 +36,11 @@ class TimeSlotServiceTest {
     @Autowired
     private TimeSlotRepository timeSlotRepository;
     @Autowired
-    private DataInitializer dataInitializer;
+    private TestDataInitializer testDataInitializer;
 
     @BeforeEach
     void setUp() {
-        dataInitializer.setUp();
+        testDataInitializer.setUp();
     }
 
     @ParameterizedTest
@@ -138,7 +138,7 @@ class TimeSlotServiceTest {
                     .build();
 
             reservationRepository.save(reservation);
-            
+
             assertThatThrownBy(() -> timeSlotService.deleteById(timeSlot.getId()))
                     .isInstanceOf(RestApiException.class)
                     .hasMessage(TimeSlotErrorStatus.RESERVATION_EXIST.getMessage());

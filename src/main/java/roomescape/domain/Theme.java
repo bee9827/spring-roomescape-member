@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -23,7 +23,7 @@ public class Theme {
     private String name;
 
     @OneToMany(mappedBy = "theme", fetch = FetchType.LAZY)
-    private Set<Reservation> reservation;
+    private List<Reservation> reservations;
 
     private String description;
     private String thumbnail;

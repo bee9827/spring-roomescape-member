@@ -7,12 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.DataInitializer;
+import roomescape.TestDataInitializer;
 import roomescape.TestFixture;
 import roomescape.common.exception.RestApiException;
 import roomescape.common.exception.status.ReservationErrorStatus;
 import roomescape.controller.dto.request.ReservationSearchCriteria;
 import roomescape.domain.Reservation;
+import roomescape.domain.ReservationStatus;
 import roomescape.repository.MemberRepository;
 import roomescape.repository.ReservationRepository;
 import roomescape.repository.ThemeRepository;
@@ -40,11 +41,11 @@ class ReservationServiceTest {
     @Autowired
     private ReservationRepository reservationRepository;
     @Autowired
-    private DataInitializer dataInitializer;
+    private TestDataInitializer testDataInitializer;
 
     @BeforeEach
     public void setUp() {
-        dataInitializer.setUp();
+        testDataInitializer.setUp();
     }
 
     @Nested
@@ -87,7 +88,7 @@ class ReservationServiceTest {
 
 
     @Nested
-    @DisplayName("저장")
+    @DisplayName("save: ")
     class Save {
         ReservationCreateCommand reservationCreateCommand = ReservationCreateCommand.builder()
                 .date(TestFixture.DEFAULT_DATE.plusDays(1))
@@ -97,11 +98,29 @@ class ReservationServiceTest {
                 .build();
 
         @Test
-        @DisplayName("CreateCommand: 저장에 성공한다.")
+        @DisplayName("i) 저장된 예약이 없다면 Status를 Booked로 만들어 저장한다.")
         void save() {
             ReservationResult saved = reservationService.save(reservationCreateCommand);
 
             assertThat(saved.date()).isEqualTo(reservationCreateCommand.date());
+            assertThat(saved.reservationStatus()).isEqualTo(ReservationStatus.BOOKED);
+        }
+
+        @Test
+        @DisplayName("ii) 저장된 예약이 있다면 Status를 Waiting으로 만들어 저장한다.")
+        void saveIfExists() {
+            ReservationCreateCommand otherMemeberRreservationCreateCommand = ReservationCreateCommand.builder()
+                    .date(TestFixture.DEFAULT_DATE.plusDays(1))
+                    .memberId(2L)
+                    .themeId(1L)
+                    .timeSlotId(1L)
+                    .build();
+            reservationService.save(reservationCreateCommand);
+            ReservationResult saved =  reservationService.save(otherMemeberRreservationCreateCommand);
+
+
+            assertThat(saved.date()).isEqualTo(reservationCreateCommand.date());
+            assertThat(saved.reservationStatus()).isEqualTo(ReservationStatus.WAITING);
         }
 
         @Test

@@ -20,4 +20,9 @@ public class MemberViewController {
     public String reservation() {
         return "reservation";
     }
+
+    @GetMapping("/reservation-mine")
+    public String reservationMine() {
+        return "reservation-mine";
+    }
 }

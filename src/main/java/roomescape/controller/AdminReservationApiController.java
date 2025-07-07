@@ -34,7 +34,7 @@ public class AdminReservationApiController {
 
     @GetMapping
     public ResponseEntity<List<ReservationResponse>> filterReservations(
-            ReservationSearchCriteria reservationSearchCriteria    //@ModelAttribute
+            @ModelAttribute ReservationSearchCriteria reservationSearchCriteria    //@ModelAttribute
     ) {
         List<ReservationResponse> reservations = reservationService.searchByCriteria(reservationSearchCriteria)
                 .stream()

@@ -11,12 +11,12 @@ import roomescape.domain.Role;
 import roomescape.repository.MemberRepository;
 import roomescape.service.MemberService;
 import roomescape.service.ReservationService;
-import roomescape.service.TimeSlotService;
 import roomescape.service.ThemeService;
+import roomescape.service.TimeSlotService;
 import roomescape.service.dto.command.MemberCreateCommand;
 import roomescape.service.dto.command.ReservationCreateCommand;
-import roomescape.service.dto.command.TimeSlotCreateCommand;
 import roomescape.service.dto.command.ThemeCreateCommand;
+import roomescape.service.dto.command.TimeSlotCreateCommand;
 import roomescape.service.dto.result.MemberResult;
 
 import java.time.LocalDate;
@@ -40,6 +40,11 @@ public class DataInitializer implements ApplicationRunner {
                 .name("용성")
                 .email("ehfrhfo9494@naver.com")
                 .password("1007")
+                .build();
+        MemberCreateCommand member2 = MemberCreateCommand.builder()
+                .name("test")
+                .email("test@email.com")
+                .password("test")
                 .build();
 
         Member admin = Member.builder()
@@ -82,6 +87,7 @@ public class DataInitializer implements ApplicationRunner {
                 .build();
 
         MemberResult savedMember = memberService.save(member);
+        MemberResult savedMember2 = memberService.save(member2);
 
         TimeSlotResponse savedTimeSlot = TimeSlotResponse.from(timeSlotService.save(time));
         TimeSlotResponse savedTimeSlot2 = TimeSlotResponse.from(timeSlotService.save(time2));
@@ -111,8 +117,16 @@ public class DataInitializer implements ApplicationRunner {
                 .timeSlotId(savedTimeSlot3.id())
                 .build();
 
+        ReservationCreateCommand waitingReservation = ReservationCreateCommand.builder()
+                .memberId(savedMember2.id())
+                .themeId(savedTheme3.id())
+                .date(LocalDate.now().plusDays(1))
+                .timeSlotId(savedTimeSlot3.id())
+                .build();
+
         reservationService.save(reservation);
         reservationService.save(reservation2);
         reservationService.save(reservation3);
+        reservationService.save(waitingReservation);
     }
 }
