@@ -1,6 +1,9 @@
 package roomescape.controller;
 
+import io.jsonwebtoken.Header;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import roomescape.controller.dto.ThemeCreateRequest;
@@ -19,9 +22,11 @@ public class AdminThemeApiController {
 
     @PostMapping
     public ResponseEntity<ThemeResponse> create(
+            HttpServletRequest request,
             @RequestBody
             ThemeCreateRequest themeCreateRequestDto
     ) {
+        request.getHeader(HttpHeaders.CONTENT_TYPE);
         ThemeResponse themeResponse = ThemeResponse.from(themeService.save(themeCreateRequestDto.toCommand()));
         URI uri = URI.create(BASE_URL + "/" + themeResponse.id());
         return ResponseEntity.created(uri).body(themeResponse);

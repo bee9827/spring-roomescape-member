@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.controller.dto.response.AvailableTimeResponse;
+import roomescape.controller.dto.response.TimeSlotResponse;
 import roomescape.service.TimeSlotService;
+import roomescape.service.dto.result.TimeSlotResult;
 
 import java.time.LocalDate;
 import java.util.List;
