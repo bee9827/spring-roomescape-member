@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -41,14 +42,35 @@ class ReservationJdbcDaoTest {
         theme = themeDao.insert(new Theme(new Name("방탈출"), "http://url", "설명"));
     }
 
-    @Test
-    @DisplayName("전체 예약 목록을 조회한다")
-    void findAll() {
-        Reservation r1 = reservationDao.insert(new Reservation("유저1", LocalDate.of(2026, 6, 1), time, theme));
-        Reservation r2 = reservationDao.insert(new Reservation("유저2", LocalDate.of(2026, 6, 2), time, theme));
+    @Nested
+    class FindAll {
 
-        List<Reservation> result = reservationDao.findAll();
+        @Test
+        @DisplayName("전체 예약 목록을 조회한다")
+        void findAll() {
+            Reservation r1 = reservationDao.insert(new Reservation("유저1", LocalDate.of(2026, 6, 1), time, theme));
+            Reservation r2 = reservationDao.insert(new Reservation("유저2", LocalDate.of(2026, 6, 2), time, theme));
 
-        assertThat(result).hasSize(2).containsExactlyInAnyOrder(r1, r2);
+            List<Reservation> result = reservationDao.findAll();
+
+            assertThat(result).hasSize(2).containsExactlyInAnyOrder(r1, r2);
+        }
+    }
+
+    @Nested
+    class Update {
+
+        @Test
+        @DisplayName("정상적으로 예약을 수정하면 최신 상태를 반환한다")
+        void updatesReservation() {
+            Reservation saved = reservationDao.insert(
+                    new Reservation("유저", LocalDate.of(2026, 6, 1), time, theme));
+
+            saved.update(LocalDate.of(2026, 6, 2), time);
+            Reservation updated = reservationDao.update(saved);
+
+            assertThat(updated.getDate()).isEqualTo(LocalDate.of(2026, 6, 2));
+        }
+
     }
 }
