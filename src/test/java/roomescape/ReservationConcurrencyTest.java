@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.concurrent.CountDownLatch;
@@ -55,46 +54,47 @@ class ReservationConcurrencyTest {
     @Test
     @DisplayName("동시에 같은 예약을 수정하면 하나만 성공하고 나머지는 409를 반환한다")
     void concurrentUpdateResultsInOneConflict() throws InterruptedException {
+        // given
         int threadCount = 10;
         ReservationPatchDto request = new ReservationPatchDto(
                 LocalDate.now().plusDays(3), savedReservation.getTime().getId());
+        String url = "/reservations/" + savedReservation.getId() + "?name=" + savedReservation.getName();
 
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger conflictCount = new AtomicInteger(0);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threadCount);
 
-        String url = "/reservations/" + savedReservation.getId()
-                + "?name=" + savedReservation.getName();
+        Runnable sendPatchRequest = () -> {
+            try {
+                startLatch.await();
+                int statusCode = RestAssured.given()
+                        .contentType(ContentType.JSON)
+                        .body(request)
+                        .when()
+                        .patch(url)
+                        .statusCode();
 
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                try {
-                    startLatch.await();
-                    Response response = RestAssured.given()
-                            .contentType(ContentType.JSON)
-                            .body(request)
-                            .when()
-                            .patch(url)
-                            .then()
-                            .extract().response();
-
-                    if (response.statusCode() == HttpStatus.OK.value()) {
-                        successCount.incrementAndGet();
-                    } else if (response.statusCode() == HttpStatus.CONFLICT.value()) {
-                        conflictCount.incrementAndGet();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } finally {
-                    doneLatch.countDown();
+                if (statusCode == HttpStatus.OK.value()) {
+                    successCount.incrementAndGet();
+                } else if (statusCode == HttpStatus.CONFLICT.value()) {
+                    conflictCount.incrementAndGet();
                 }
-            }).start();
-        }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                doneLatch.countDown();
+            }
+        };
 
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(sendPatchRequest).start();
+        }
         startLatch.countDown();
         doneLatch.await();
 
+        // then
         assertThat(successCount.get() + conflictCount.get()).isEqualTo(threadCount);
         assertThat(conflictCount.get()).isGreaterThanOrEqualTo(1);
     }
