@@ -2,6 +2,9 @@ package roomescape;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.concurrent.CountDownLatch;
@@ -12,11 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import roomescape.dao.ReservationDao;
 import roomescape.dao.ThemeDao;
@@ -31,8 +31,9 @@ import roomescape.dto.request.ReservationPatchDto;
 @ActiveProfiles("test")
 class ReservationConcurrencyTest {
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @LocalServerPort
+    private int port;
+
     @Autowired
     private ReservationDao reservationDao;
     @Autowired
@@ -44,6 +45,7 @@ class ReservationConcurrencyTest {
 
     @BeforeEach
     void setUp() {
+        RestAssured.port = port;
         Time time = timeDao.insert(new Time(LocalTime.of(13, 0)));
         Theme theme = themeDao.insert(new Theme(new Name("방탈출"), "http://url", "설명"));
         savedReservation = reservationDao.insert(
@@ -62,17 +64,24 @@ class ReservationConcurrencyTest {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threadCount);
 
-        String url = "/reservations/" + savedReservation.getId() + "?name=" + savedReservation.getName();
+        String url = "/reservations/" + savedReservation.getId()
+                + "?name=" + savedReservation.getName();
 
         for (int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 try {
                     startLatch.await();
-                    ResponseEntity<String> response = restTemplate.exchange(
-                            url, HttpMethod.PATCH, new HttpEntity<>(request), String.class);
-                    if (response.getStatusCode() == HttpStatus.OK) {
+                    Response response = RestAssured.given()
+                            .contentType(ContentType.JSON)
+                            .body(request)
+                            .when()
+                            .patch(url)
+                            .then()
+                            .extract().response();
+
+                    if (response.statusCode() == HttpStatus.OK.value()) {
                         successCount.incrementAndGet();
-                    } else if (response.getStatusCode() == HttpStatus.CONFLICT) {
+                    } else if (response.statusCode() == HttpStatus.CONFLICT.value()) {
                         conflictCount.incrementAndGet();
                     }
                 } catch (InterruptedException e) {
