@@ -25,6 +25,7 @@ import roomescape.domain.Theme;
 import roomescape.domain.Time;
 import roomescape.domain.vo.Name;
 import roomescape.dto.request.ReservationPatchDto;
+import roomescape.dto.request.ReservationRequestDto;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -49,6 +50,55 @@ class ReservationConcurrencyTest {
         Theme theme = themeDao.insert(new Theme(new Name("방탈출"), "http://url", "설명"));
         savedReservation = reservationDao.insert(
                 new Reservation("유저1", LocalDate.now().plusDays(1), time, theme));
+    }
+
+    @Test
+    @DisplayName("같은 슬롯에 3개 동시 예약 요청이 들어오면 하나만 성공하고 나머지는 409를 반환한다")
+    void concurrentInsertResultsInOneSuccess() throws InterruptedException {
+        // given
+        int threadCount = 3;
+        ReservationRequestDto request = new ReservationRequestDto(
+                "유저", LocalDate.now().plusDays(2),
+                savedReservation.getTime().getId(),
+                savedReservation.getTheme().getId());
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger conflictCount = new AtomicInteger(0);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch doneLatch = new CountDownLatch(threadCount);
+
+        Runnable sendPostRequest = () -> {
+            try {
+                startLatch.await();
+                int statusCode = RestAssured.given()
+                        .contentType(ContentType.JSON)
+                        .body(request)
+                        .when()
+                        .post("/reservations")
+                        .statusCode();
+
+                if (statusCode == HttpStatus.CREATED.value()) {
+                    successCount.incrementAndGet();
+                } else if (statusCode == HttpStatus.CONFLICT.value()) {
+                    conflictCount.incrementAndGet();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                doneLatch.countDown();
+            }
+        };
+
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(sendPostRequest).start();
+        }
+        startLatch.countDown();
+        doneLatch.await();
+
+        // then
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(conflictCount.get()).isEqualTo(2);
     }
 
     @Test
