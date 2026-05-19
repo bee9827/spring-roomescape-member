@@ -75,7 +75,7 @@ public class ReservationService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 시간입니다."));
         Theme theme = themeDao.findById(reservationRequest.themeId())
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 테마입니다."));
-        if (reservationDao.existsByThemeIdAndTimeIdAndDate(reservationRequest.themeId(), reservationRequest.timeId(),
+        if (reservationDao.selectForUpdateByThemeIdAndTimeIdAndDate(reservationRequest.themeId(), reservationRequest.timeId(),
                 reservationRequest.date())) {
             throw new ConflictException("이미 존재하는 예약이 있습니다.");
         }

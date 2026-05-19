@@ -239,21 +239,21 @@ public class ReservationJdbcDao implements ReservationDao {
     }
 
     @Override
-    public boolean existsByThemeIdAndTimeIdAndDate(Long themeId, Long timeId, LocalDate date) {
+    public boolean selectForUpdateByThemeIdAndTimeIdAndDate(Long themeId, Long timeId, LocalDate date) {
         String sql = """
-                SELECT EXISTS(
-                    SELECT 1 FROM reservations r
-                    WHERE r.theme_id = :themeId
-                    AND r.time_id = :timeId
-                    AND r.date = :date
-                    AND r.status = 'BOOKED'
-                )
+                SELECT COUNT(*) FROM reservations r
+                WHERE r.theme_id = :themeId
+                AND r.time_id = :timeId
+                AND r.date = :date
+                AND r.status = 'BOOKED'
+                FOR UPDATE
                 """;
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("themeId", themeId)
                 .addValue("timeId", timeId)
                 .addValue("date", date);
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, params, Boolean.class));
+        Long count = jdbcTemplate.queryForObject(sql, params, Long.class);
+        return count != null && count > 0;
     }
 
     @Override
