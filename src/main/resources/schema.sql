@@ -30,12 +30,11 @@ CREATE TABLE reservations
     theme_id   BIGINT,
     status     VARCHAR(20) NOT NULL DEFAULT 'BOOKED',
     deleted_at TIMESTAMP   NOT NULL DEFAULT '9999-12-31 00:00:00',
-    waiting_at TIMESTAMP   NOT NULL DEFAULT '9999-12-31 00:00:00',
     version    BIGINT      NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     FOREIGN KEY (time_id) REFERENCES times (id),
     FOREIGN KEY (theme_id) REFERENCES themes (id),
-    UNIQUE (theme_id, date, time_id, deleted_at, waiting_at)
+    UNIQUE (theme_id, date, time_id, deleted_at)
 );
 
 

@@ -88,67 +88,6 @@ public class ReservationJdbcDao implements ReservationDao {
     }
 
     @Override
-    public List<Reservation> findAll(int limit, int offset) {
-        String sql = """
-                SELECT
-                    r.id,
-                    r.name,
-                    r.date,
-                    r.status,
-                    r.deleted_at,
-                    r.version,
-                    t.id AS time_id,
-                    t.start_at AS time_start_at,
-                    th.id AS theme_id,
-                    th.name AS theme_name,
-                    th.thumbnail_url AS theme_thumbnail_url,
-                    th.description AS theme_description
-                FROM reservations r
-                INNER JOIN times t ON r.time_id = t.id
-                INNER JOIN themes th ON r.theme_id = th.id
-                ORDER BY r.id DESC
-                LIMIT :limit OFFSET :offset
-                """;
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("limit", limit)
-                .addValue("offset", offset);
-        return jdbcTemplate.query(sql, params, ROW_MAPPER);
-    }
-
-    @Override
-    public List<Reservation> findAllByName(String name) {
-        String sql = """
-                SELECT
-                    r.id,
-                    r.name,
-                    r.date,
-                    r.status,
-                    r.deleted_at,
-                    r.version,
-                    t.id AS time_id,
-                    t.start_at AS time_start_at,
-                    th.id AS theme_id,
-                    th.name AS theme_name,
-                    th.thumbnail_url AS theme_thumbnail_url,
-                    th.description AS theme_description
-                FROM reservations r
-                INNER JOIN times t ON r.time_id = t.id
-                INNER JOIN themes th ON r.theme_id = th.id
-                WHERE r.name = :name AND r.deleted_at = '9999-12-31 00:00:00'
-                ORDER BY r.date, t.start_at
-                """;
-        SqlParameterSource params = new MapSqlParameterSource("name", name);
-        return jdbcTemplate.query(sql, params, ROW_MAPPER);
-    }
-
-    @Override
-    public long count() {
-        String sql = "SELECT COUNT(*) FROM reservations";
-        Long result = jdbcTemplate.queryForObject(sql, new MapSqlParameterSource(), Long.class);
-        return result != null ? result : 0;
-    }
-
-    @Override
     public Optional<Reservation> findById(Long id) {
         String sql = """
                 SELECT
@@ -198,7 +137,7 @@ public class ReservationJdbcDao implements ReservationDao {
         String sql = """
                 UPDATE reservations
                 SET name = :name, date = :date, time_id = :timeId, theme_id = :themeId,
-                    status = :status, deleted_at = :deletedAt, waiting_at = :waitingAt, version = version + 1
+                    status = :status, deleted_at = :deletedAt, version = version + 1
                 WHERE id = :id AND version = :version
                 """;
         SqlParameterSource params = new MapSqlParameterSource()
@@ -208,7 +147,6 @@ public class ReservationJdbcDao implements ReservationDao {
                 .addValue("themeId", reservation.getTheme().getId())
                 .addValue("status", reservation.getStatus().name())
                 .addValue("deletedAt", reservation.getDeletedAt() != null ? reservation.getDeletedAt() : SENTINEL)
-                .addValue("waitingAt", SENTINEL)
                 .addValue("id", reservation.getId())
                 .addValue("version", currentVersion);
         int updated = jdbcTemplate.update(sql, params);
@@ -216,12 +154,6 @@ public class ReservationJdbcDao implements ReservationDao {
             throw new ConflictException("다른 사용자가 이미 수정했습니다. 다시 시도해주세요.");
         }
         return findById(reservation.getId()).orElseThrow();
-    }
-
-    private long findVersionById(Long id) {
-        String sql = "SELECT version FROM reservations WHERE id = :id";
-        Long version = jdbcTemplate.queryForObject(sql, new MapSqlParameterSource("id", id), Long.class);
-        return version != null ? version : 0L;
     }
 
     @Override
@@ -247,6 +179,68 @@ public class ReservationJdbcDao implements ReservationDao {
     }
 
     @Override
+    public List<Reservation> findAll(int limit, int offset) {
+        String sql = """
+                SELECT
+                    r.id,
+                    r.name,
+                    r.date,
+                    r.status,
+                    r.deleted_at,
+                    r.version,
+                    t.id AS time_id,
+                    t.start_at AS time_start_at,
+                    th.id AS theme_id,
+                    th.name AS theme_name,
+                    th.thumbnail_url AS theme_thumbnail_url,
+                    th.description AS theme_description
+                FROM reservations r
+                INNER JOIN times t ON r.time_id = t.id
+                INNER JOIN themes th ON r.theme_id = th.id
+                ORDER BY r.id DESC
+                LIMIT :limit OFFSET :offset
+                """;
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("limit", limit)
+                .addValue("offset", offset);
+        return jdbcTemplate.query(sql, params, ROW_MAPPER);
+    }
+
+    @Override
+    public List<Reservation> findAllByName(String name) {
+        String sql = """
+                SELECT
+                    r.id,
+                    r.name,
+                    r.date,
+                    r.status,
+                    r.deleted_at,
+                    r.version,
+                    t.id AS time_id,
+                    t.start_at AS time_start_at,
+                    th.id AS theme_id,
+                    th.name AS theme_name,
+                    th.thumbnail_url AS theme_thumbnail_url,
+                    th.description AS theme_description
+                FROM reservations r
+                INNER JOIN times t ON r.time_id = t.id
+                INNER JOIN themes th ON r.theme_id = th.id
+                WHERE r.name = :name AND r.deleted_at = '9999-12-31 00:00:00'
+                ORDER BY r.date, t.start_at
+                """;
+
+        SqlParameterSource params = new MapSqlParameterSource("name", name);
+        return jdbcTemplate.query(sql, params, ROW_MAPPER);
+    }
+
+    @Override
+    public long count() {
+        String sql = "SELECT COUNT(*) FROM reservations";
+        Long result = jdbcTemplate.queryForObject(sql, new MapSqlParameterSource(), Long.class);
+        return result != null ? result : 0;
+    }
+
+    @Override
     public boolean selectForUpdateByThemeIdAndTimeIdAndDate(Long themeId, Long timeId, LocalDate date) {
         String sql = """
                 SELECT id FROM reservations
@@ -254,7 +248,6 @@ public class ReservationJdbcDao implements ReservationDao {
                 AND time_id = :timeId
                 AND date = :date
                 AND deleted_at = '9999-12-31 00:00:00'
-                AND waiting_at = '9999-12-31 00:00:00'
                 FOR UPDATE
                 """;
         SqlParameterSource params = new MapSqlParameterSource()
@@ -286,5 +279,11 @@ public class ReservationJdbcDao implements ReservationDao {
                 """;
         SqlParameterSource params = new MapSqlParameterSource("timeId", timeId);
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, params, Boolean.class));
+    }
+
+    private long findVersionById(Long id) {
+        String sql = "SELECT version FROM reservations WHERE id = :id";
+        Long version = jdbcTemplate.queryForObject(sql, new MapSqlParameterSource("id", id), Long.class);
+        return version != null ? version : 0L;
     }
 }
