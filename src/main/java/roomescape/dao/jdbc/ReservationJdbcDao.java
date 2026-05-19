@@ -2,6 +2,7 @@ package roomescape.dao.jdbc;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import roomescape.domain.vo.Name;
 
 @Repository
 public class ReservationJdbcDao implements ReservationDao {
+    private static final LocalDateTime SENTINEL = LocalDateTime.of(9999, 12, 31, 0, 0, 0);
     private static final RowMapper<Theme> THEME_ROW_MAPPER = (rs, rowNum) ->
             new Theme(
                     rs.getLong("theme_id"),
@@ -35,6 +37,11 @@ public class ReservationJdbcDao implements ReservationDao {
             );
     private static final RowMapper<Reservation> ROW_MAPPER = (rs, rowNum) -> {
         Timestamp deletedAt = rs.getTimestamp("deleted_at");
+        LocalDateTime deletedAtValue = deletedAt != null ? deletedAt.toLocalDateTime() : null;
+        // sentinel 값은 도메인에서 null로 표현
+        if (SENTINEL.equals(deletedAtValue)) {
+            deletedAtValue = null;
+        }
         return new Reservation(
                 rs.getLong("id"),
                 rs.getString("name"),
@@ -42,7 +49,7 @@ public class ReservationJdbcDao implements ReservationDao {
                 TIME_ROW_MAPPER.mapRow(rs, rowNum),
                 THEME_ROW_MAPPER.mapRow(rs, rowNum),
                 ReservationStatus.valueOf(rs.getString("status")),
-                deletedAt != null ? deletedAt.toLocalDateTime() : null
+                deletedAtValue
         );
     };
 
@@ -127,7 +134,7 @@ public class ReservationJdbcDao implements ReservationDao {
                 FROM reservations r
                 INNER JOIN times t ON r.time_id = t.id
                 INNER JOIN themes th ON r.theme_id = th.id
-                WHERE r.name = :name AND r.deleted_at IS NULL
+                WHERE r.name = :name AND r.deleted_at = '9999-12-31 00:00:00'
                 ORDER BY r.date, t.start_at
                 """;
         SqlParameterSource params = new MapSqlParameterSource("name", name);
@@ -191,7 +198,7 @@ public class ReservationJdbcDao implements ReservationDao {
         String sql = """
                 UPDATE reservations
                 SET name = :name, date = :date, time_id = :timeId, theme_id = :themeId,
-                    status = :status, deleted_at = :deletedAt, version = version + 1
+                    status = :status, deleted_at = :deletedAt, waiting_at = :waitingAt, version = version + 1
                 WHERE id = :id AND version = :version
                 """;
         SqlParameterSource params = new MapSqlParameterSource()
@@ -200,7 +207,8 @@ public class ReservationJdbcDao implements ReservationDao {
                 .addValue("timeId", reservation.getTime().getId())
                 .addValue("themeId", reservation.getTheme().getId())
                 .addValue("status", reservation.getStatus().name())
-                .addValue("deletedAt", reservation.getDeletedAt())
+                .addValue("deletedAt", reservation.getDeletedAt() != null ? reservation.getDeletedAt() : SENTINEL)
+                .addValue("waitingAt", SENTINEL)
                 .addValue("id", reservation.getId())
                 .addValue("version", currentVersion);
         int updated = jdbcTemplate.update(sql, params);
@@ -245,7 +253,8 @@ public class ReservationJdbcDao implements ReservationDao {
                 WHERE theme_id = :themeId
                 AND time_id = :timeId
                 AND date = :date
-                AND status = 'BOOKED'
+                AND deleted_at = '9999-12-31 00:00:00'
+                AND waiting_at = '9999-12-31 00:00:00'
                 FOR UPDATE
                 """;
         SqlParameterSource params = new MapSqlParameterSource()
